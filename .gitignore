@@ -1,5 +1,7 @@
-tests/data/
-
+tests/data/ccodes.csv
+tests/data/cn_dict.csv 
+tests/data/data2.csv
+tests/data/mapdata.csv 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
