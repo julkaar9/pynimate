@@ -1,0 +1,40 @@
+# pyproject.toml
+
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+name = "pynimate"
+version = "1.0.0"
+description = "python package for statistical data animations"
+readme = "README.md"
+authors = [{ name = "julkar9", email = "julkar9dev@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["animations", "framework", "data"]
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["black","bumpver", "isort", "pip-tools"]
+
+[project.urls]
+Homepage = "https://github.com/julkaar9/pynimate"
+
+ 

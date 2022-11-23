@@ -1,3 +1,6 @@
+tests/data/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -5,7 +8,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+.vscode/
 # Distribution / packaging
 .Python
 build/
@@ -60,13 +63,6 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
 docs/_build/
