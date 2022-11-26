@@ -15,4 +15,5 @@ df = pd.DataFrame(
 bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 bar.animate()
-plt.show()
+bar.save('exm2', 24, 'gif',  )
+#plt.show()

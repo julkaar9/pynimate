@@ -1,0 +1,55 @@
+# Project information
+site_name: Pynimate
+site_url: https://julkaar9.github.io/
+site_author: julkar9
+site_description: >-
+  Pynimate is a python package for statistical data analysis
+
+# Repository
+repo_name: julkaar9/pynimate
+repo_url: https://github.com/julkaar9/pynimate
+
+# Copyright
+copyright: Copyright &copy; 2022 julkar9
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: white
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Reference:
+    - BarBasic: reference/barBasic.md
+    - Datafier: reference/datafier.md
+# Customization
+extra:
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/julkaar9/pynimate
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pynimate/
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  
+plugins:
+- mkdocstrings

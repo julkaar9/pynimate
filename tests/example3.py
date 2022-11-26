@@ -30,7 +30,7 @@ bar.set_bar_color(
         "Argentina": "#e5989b",
     }
 )
-bar.set_figure(facecolor="#001219")
+bar.set_figure(figsize=(12.8, 7.2), facecolor="#001219")
 bar.set_title("Sample Title", color="w", weight=600)
 bar.set_xlabel("xlabel", color="w")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"), color="w")
@@ -50,4 +50,4 @@ bar.set_bar_border_props(
 )
 bar.animate()
 # plt.show()
-bar.save("example3", 24)
+bar.save("example3", 24, "gif")

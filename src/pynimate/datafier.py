@@ -14,26 +14,31 @@ class Datafier:
         n_bars: int = 10,
         palettes: list[str] = ["viridis"],
     ) -> None:
-        """Contains data preparation modules, which includes
-        interpolation, rank generation, color_generation
+        """Contains data preparation modules, which includes interpolation, rank generation, color_generation
 
-        Args:
-        -----
-            `data (pd.DataFrame):` The data to be prepared, should be in this format
-            where time is set to index.
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The data to be prepared, should be in this format where time is set to index.
+            ```
+                Example:
+                >>> time  col1 col2 col3 ...
+                >>> 2012   1    0    2
+                >>> 2013   2    3    1
+            ```
+        time_format : str
+            Index datetime format
+        ip_freq : str
+            Interpolation frequency
+        ip_frac : float, optional
+            Interpolation fraction (check end of docstring), by default 0.5
+        n_bars : int, optional
+            Number of bars to be visible on the plot Defaults to 10 or less, by default 10
+        palettes : list[str], optional
+            List of color palettes to generate bar
+                colors. Defaults to ["viridis"], by default ["viridis"]
 
-            Example:
-            >>> time  col1 col2 col3 ...
-            >>> 2012   1    0    2
-            >>> 2013   2    3    1
-
-            `time_format (str):`  Index datetime format
-            `ip_freq (str):` Interpolation frequency
-            `ip_frac (float, optional):` Interpolation fraction (check end of docstring) Defaults to 0.5.
-            `n_bars (int, optional):` Number of bars to be visible on the plot Defaults to 10 or less.
-            `palettes (list[str], optional):` List of color palettes to generate bar
-                colors. Defaults to ["viridis"].
-
+        ```
             ip_frac is the percentage of NaN values to be linearly interpolated\n
             Consider this example
             >>>               a    b
@@ -56,7 +61,9 @@ class Datafier:
             >>> 2021-11-17  2.000000  6.000000      upto here                    |  rest are filled.
             >>> 2021-11-18  2.000000  6.000000  << original value (upper bound)--
             This adds some stability in the barChartRace and reduces constantly shaking of bars.
+        ```
         """
+
         self.raw_data = data
         self.ip_freq = ip_freq
         self.ip_frac = ip_frac
@@ -70,16 +77,17 @@ class Datafier:
     def prepared_data(
         self,
     ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
+        """_summary_
 
-        """returns required data for Bar Animations
-
-        Returns:
-        --------
-            A tuple containing the following data
-
-            pd.DataFrame: The actual data interpolated
-            pd.DataFrame: Dataframe containing bar ranks
-            dict[str, str]: dict containing column to color mapping
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]
+            Tuple containing the following data
+            ```
+                pd.DataFrame: The actual data interpolated
+                pd.DataFrame: Dataframe containing bar ranks
+                dict[str, str]: Dict containing column to color mapping
+            ```
         """
         self.data.columns = list(self.data.columns)
         self.df_ranks.columns = list(self.df_ranks.columns)
@@ -104,14 +112,19 @@ class Datafier:
     ) -> pd.DataFrame:
         """Interpolates the given dataframe according to the frequency
 
-        Parameters:
+        Parameters
         ----------
-            `data (pd.DataFrame):` Dataframe contaning the data.
-            `freq (str):` Interpolation frequency
+        data : pd.DataFrame
+            Dataframe contaning the data
+        freq : str
+            Interpolation frequency
+        method : str, optional
+            Interpolation method, by default "linear"
 
-        Returns:
-        --------
-            pd.DataFrame: Interpolated dataframe
+        Returns
+        -------
+        pd.DataFrame
+            Interpolated dataframe
         """
         ncols = data.select_dtypes("number").columns
         num_data = data[ncols]
@@ -133,17 +146,25 @@ class Datafier:
     def get_prepared_data(
         self, data: pd.DataFrame, ip_frac: float = 0.5
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Creates interpolated data and column ranks.
+        """Creates interpolated data and column ranks
 
-        Parameters:
-        --------
-            `data (pd.DataFrame):` Dataframe contaning the data
-            `ip_frac (float, optional):` Interpolation fraction. Defaults to 0.5.
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Dataframe contaning the data
+        ip_frac : float, optional
+            Interpolation fraction, by default 0.5
 
-        Returns:
-        --------
-            `tuple[pd.DataFrame, pd.DataFrame]`: _description_
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame]
+            Tuple containing the following data
+            ```
+                pd.DataFrame: Interpolated data values
+                pd.DataFrame: Interpolated column ranks
+            ```
         """
+
         df_ranks = data.rank(axis=1, method="first", ascending=False).clip(
             upper=self.n_bars + 1
         )
@@ -173,22 +194,24 @@ class Datafier:
         return (data, df_ranks)
 
     def get_top_cols(self) -> list[int]:
-        """Selects columns that a rank < n_bars in any timestamp.
+        """Selects columns that a rank < n_bars in any timestamp
 
-        Returns:
-        --------
-            list[int]: List of columns that will appear in the animation atleast once.
+        Returns
+        -------
+        list[int]
+            List of columns that will appear in the animation atleast once
         """
         top_cols = self.df_ranks.max(axis=0)
         top_cols = top_cols[top_cols >= 1]
         return list(top_cols.index)
 
     def get_bar_colors(self) -> dict[str, str]:
-        """Generates bar (column) colors based on the given color palettes.
+        """Generates bar (column) colors based on the given color palettes
 
-        Returns:
-        --------
-            dict[str, str]: dict containing column to color mapping
+        Returns
+        -------
+        dict[str, str]
+            dict containing column to color mapping
         """
         all_colors = []
         for palette in self.palettes:

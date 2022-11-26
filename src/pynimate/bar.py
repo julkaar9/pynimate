@@ -26,29 +26,25 @@ class BarBasic:
         grid: bool = True,
         rounded_edges: bool = False,
     ) -> None:
-        """
-        BarBasic
-        --------
-        Basic BarChartRace module that requires a valid time index
+        """Basic BarChartRace module that requires a valid time index
 
-        Parameters:
-        --------
-            data (pd.DataFrame): The data to be prepared, should be in this format
-            where time is set to index.
-
-            Example:
-            >>> time  col1 col2 col3 ...
-            >>> 2012   1    0    2
-            >>> 2013   2    3    1
-
-            `time_format (str):`  Index datetime format
-            `ip_freq (str):` Interpolation frequency
-            `ip_frac (float, optional):` Interpolation fraction (check end of docstring) Defaults to 0.5.
-            `n_bars (int, optional):` Number of bars to be visible on the plot Defaults to 10 or less.
-            `palettes (list[str], optional):` List of color palettes to generate bar
-                colors. Defaults to ["viridis"].
-            `post_update (Callable[ [plt.Axes, int, pd.DataFrame, pd.DataFrame], None ], optional):` Defaults to None.\n
-                callback function for additional customization,\n
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The data to be prepared, should be in this format where time is set to index.
+        time_format : str
+            Index datetime format
+        ip_freq : str
+            Interpolation frequency
+        ip_frac : float, optional
+            Interpolation fraction (check end of docstring), by default 0.5
+        n_bars : int, optional
+            Number of bars to be visible on the plot Defaults to 10 or less, by default 10
+        palettes : list[str], optional
+            List of color palettes to generate bar colors, by default ["viridis"]
+        post_update : Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None], optional
+            callback function for additional customization,, by default None\n
+            ```
                 args:
                     plt.Axes: The matplotlib Axes used for the barplot
                     int: Current animation frame / dataframe row
@@ -59,14 +55,21 @@ class BarBasic:
                 >>> def post_update(ax, i, data, df_ranks):
                 >>>     # sets log scale for x-axis
                 >>>     ax.set_xscale("log")
+            ```
+        annot_bars : bool, optional
+            Sets bar annotations, by default True
+        fixed_xlim : bool, optional
+            If False xlim will gradually change in every frame, by default True
+        xticks : bool, optional
+            Sets xticks, by default True
+        yticks : bool, optional
+            Sets yticks, by default True
+        grid : bool, optional
+             Sets xgrid, by default True
+        rounded_edges : bool, optional
+             Sets rounded bar edges, by default False
 
-            `annot_bars (bool, optional):` Sets bar annotations. Defaults to True.
-            `fixed_xlim (bool, optional):` If False xlim will gradually change in every frame. Defaults to True.
-            `xticks (bool, optional):` Sets xicks. Defaults to True.
-            `yticks (bool, optional):` Sets yticks. Defaults to True.
-            `grid (bool, optional):` Sets xgrid. Defaults to True.
-            `rounded_edges (bool, optional):` Sets rounded bar edges. Defaults to False.
-
+        ```
             ip_frac is the percentage of NaN values to be linearly interpolated\n
             Consider this example
             >>>               a    b
@@ -88,8 +91,9 @@ class BarBasic:
             >>> 2021-11-16  2.000000  6.000000  <- linear interpolation          |  interpolated
             >>> 2021-11-17  2.000000  6.000000      upto here                    |  rest are filled.
             >>> 2021-11-18  2.000000  6.000000  << original value (upper bound)--
-            This adds some stability in the barChartRace and reduces constantly shaking of bars.
+            This adds some stability in the barChartRace and reduces constantly shaking of bars.```
         """
+
         self.n_bars = min(n_bars, len(data.columns))
         (self.data, self.df_ranks, self.bar_colors,) = self.get_datafier_data(
             data, time_format, ip_freq, ip_frac, n_bars, palettes
@@ -129,12 +133,12 @@ class BarBasic:
         return data_handler.prepared_data()
 
     def set_bar_color(self, colors: Union[list, dict[str, str]]):
-        """If colors is a list, length of colors should be equal to no of columns
-        If it is a dict, all columns should be mapped to a color.
+        """If colors is a list, length of colors should be equal to no of columns. If it is a dict, all columns should be mapped to a color.
 
-        Parameters:
-        --------
-            colors (Union[list, dict[str, str]]): list of colors or dict of column to color mapping
+        Parameters
+        ----------
+        colors : Union[list, dict[str, str]]
+            list of colors or dict of column to color mapping
         """
         assert len(colors) == len(
             self.data.columns
@@ -155,13 +159,16 @@ class BarBasic:
         ylim: list[float] = [],
         **kwargs,
     ) -> None:
-        """Sets figure size, xlim and ylim. Additional kwargs ara passed to plt.subplots(**kwargs)
+        """ets figure size, xlim and ylim. Additional kwargs ara passed to plt.subplots(**kwargs)
 
-        Parameters:
-        -----------
-            `figsize (tuple[int, int], optional):` plot figure size. Defaults to (16, 9).
-            `xlim (list[float], optional):` x axis limits in this format [min, max]. Defaults to [min, max + 5].
-            `ylim (list[float], optional):` y axis limits in this format [min, max]. Defaults to [0.5, n_bars + 0.6].
+        Parameters
+        ----------
+        figsize : tuple[int, int], optional
+            plot figure size, by default (16, 9)
+        xlim : list[float], optional
+            x axis limits in this format [min, max], by default [min, max + 5]
+        ylim : list[float], optional
+            y axis limits in this format [min, max], by default [0.5, n_bars + 0.6]
         """
         if xlim != None:
             assert (
@@ -183,18 +190,20 @@ class BarBasic:
         self.ylim = ylim
 
     def getTopXY(self, i: int) -> tuple:
-        """Prepares top n_bar columns and their respective attributes
-        such as position, length, colors.
+        """Prepares top n_bar columns and their respective attributes such as position, length, colors.
+        Not to be used outside animation update.
 
-        Not to be used outside animation update
+        Parameters
+        ----------
+        i : int
+            Animation frame index
 
-        Parameters:
-        --------
-            `i (int):` Animation frame index.
-
-        Returns:
-            `tuple:`
+        Returns
+        -------
+        tuple
+            Bar locationn length, columns and their respective colors
         """
+
         bar_location = self.df_ranks.iloc[i].values
         top_filt = (bar_location >= 1) & (bar_location <= self.n_bars)
         bar_location = bar_location[top_filt]
@@ -214,13 +223,18 @@ class BarBasic:
     ) -> None:
         """Sets the plot title and additional `kwargs` are passed to plt.text(**kwargs)
 
-        Parameters:
-        --------
-            `title (str):` The Title text
-            `x (float, optional):` x coordinate of the text. Defaults to 0.
-            `y (float, optional):` y coordinate. Defaults to 1.01.
-            `size (float, optional):` text size. Defaults to 13.
-            `color (str, optional):` text color. Defaults to "#777777".
+        Parameters
+        ----------
+        title : str
+            _description_
+        x : float, optional
+            x coordinate of the text, by default 0
+        y : float, optional
+            y coordinate, by default 1.01
+        size : float, optional
+            text size, by default 13
+        color : str, optional
+            text color, by default "#777777"
         """
         self.text_collection["title"] = (
             None,
@@ -248,13 +262,18 @@ class BarBasic:
     ) -> None:
         """Sets the plot xlabel and additional `kwargs` are passed to plt.text(**kwargs)
 
-        Parameters:
-        --------
-            `text (str):` The xlabel text
-            `x (float, optional):` X coordinate of the text. Defaults to 0.43.
-            `y (float, optional):` Y coordinate. Defaults to -0.09.
-            `size (float, optional):` Text size. Defaults to 13.
-            `color (str, optional):` Text color. Defaults to "#777777".
+        Parameters
+        ----------
+        text : str
+            The xlabel text
+        x : float, optional
+             X coordinate of the text, by default 0.43
+        y : float, optional
+            Y coordinate, by default -0.09
+        size : float, optional
+            Text size, by default 13
+        color : str, optional
+            Text color, by default "#777777"
         """
         self.text_collection["xlabel"] = (
             None,
@@ -284,24 +303,31 @@ class BarBasic:
         color: str = "#777777",
         **kwargs,
     ) -> None:
-        """Sets the time text, additional `kwargs` are passed to plt.text(**kwargs)
+        """_summary_
 
-        Parameters:
+        Parameters
         ----------
-            `callback (Callable[ [int, pd.DataFrame, list, any], str ], optional):` Callback function to customize the time text. Defaults to
-             >>> lambda i, data, time, rank: time[i]
-             args:
-                i: Animation frame / data row index
-                data: The actual data
-                time: The time index, i.e data.index
-                rank: Dataframe containing the bar rankings
-
-            `x (float, optional):` x coordinate of the text. Defaults to 0.97.
-            `y (float, optional):` y coordinate of the text. Defaults to 0.27.
-            `size (float, optional):` text size. Defaults to 46.
-            `weight (float, optional):` text weight. Defaults to 800.
-            `ha (str, optional):` horizontal alignment. Defaults to "right".
-            `color (str, optional):` text color. Defaults to "#777777".
+        callback : Callable[ [int, pd.DataFrame, list, any], str ], optional
+            Callback function to customize the time text, by default `lambda i, data, time, rank: time[i]`
+        ```
+            args:
+            i: Animation frame / data row index
+            data: The actual data
+            time: The time index, i.e data.index
+            rank: Dataframe containing the bar rankings
+        ```
+        x : float, optional
+            x coordinate of the text, by default 0.97
+        y : float, optional
+            y coordinate of the text, by default 0.27
+        size : float, optional
+            text size, by default 46
+        weight : float, optional
+            text weight, by default 800
+        ha : str, optional
+            horizontal alignment, by default "right"
+        color : str, optional
+            text color, by default "#777777"
         """
         self.text_collection["time"] = (
             callback,
@@ -330,27 +356,34 @@ class BarBasic:
         color: str = "#777777",
         **kwargs,
     ):
-        """General function to add custom texts in the plot.
-        Either text or callback should be passd but not both.
+        """General function to add custom texts in the plot. Either text or callback should be passd but not both.
 
-        Parameters:
+        Parameters
         ----------
-            `key (str):` Unique identifier for each texts, note: These keys, `title`, `xlabel`, `time`, are reserved.
-             overwrite them if you wish to use callbacks instead of texts in title or xlabel.
-            `text (str, optional):` The text to be added in the plot. Defaults to None.
-            `callback (Callable[ [int, pd.DataFrame, list, any], str ], optional):` Callback function to
-             customize the text. Defaults to None.
-             Example
-             >>> lambda i, data, time, rank: time[i]
-             args:
-                i: Animation frame / data row index
-                data: The actual data
-                time: The time index, i.e data.index
-                rank: Dataframe containing the bar rankings
-            `x (float, optional):` X coordinate of the text. Defaults to 0.
-            `y (float, optional):` Y coordinate of the text. Defaults to 0.
-            `size (float, optional):` Text size. Defaults to 13.
-            `color (str, optional):` Text color. Defaults to "#777777".
+        key : str
+            Unique identifier for each texts, note: These keys, title, xlabel, time, are reserved.
+              overwrite them if you wish to use callbacks instead of texts in title or xlabel.
+        text : str, optional
+            The text to be added in the plot, by default None
+        callback : Callable[[int, pd.DataFrame, list, pd.DataFrame], str], optional
+            Callback function to customize the text, by default None\n
+            ```
+            Example:
+            >>> lambda i, data, time, rank: time[i]
+            args:
+            i: Animation frame / data row index
+            data: The actual data
+            time: The time index, i.e data.index
+            rank: Dataframe containing the bar rankings
+            ```
+        x : float, optional
+            X coordinate of the text, by default 0
+        y : str, optional
+            Y coordinate of the text, by default 0
+        size : float, optional
+            Text size, by default 13
+        color : str, optional
+            Text color, by default "#777777"
         """
         assert text or callback, "Both text and callback cannot be None"
         self.text_collection[key] = (
@@ -373,9 +406,10 @@ class BarBasic:
     def remove_text(self, keys: list[str]):
         """Removes texts by key.
 
-        Parameters:
+        Parameters
         ----------
-            keys (list[str]): List of keys to be removed.
+        keys : list[str]
+            List of keys to be removed
         """
         for key in keys:
             self.text_collection.pop(key)
@@ -391,12 +425,16 @@ class BarBasic:
         """Sets bar border properties. Additional `kwargs` are passed to FancyBboxPatch.
         See https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.patches.FancyBboxPatch.html
 
-        Parameters:
+        Parameters
         ----------
-            `edge_color (str, optional):` Bar edge color. Defaults to "black".
-            `radius (float, optional):` Bar border radius. Defaults to 0.5.
-            `pad (float, optional):` See above link. Defaults to -0.0040.
-            `mutation_aspect (float, optional):` See above link. Defaults to 0.2.
+        edge_color : str, optional
+            Bar edge color, by default "k"
+        radius : float, optional
+            Bar border radius, by default 0.5
+        pad : float, optional
+            See above link, by default -0.0040
+        mutation_aspect : float, optional
+            See above link, by default 0.2
         """
         self.bar_border_props = {
             "edge_color": edge_color,
@@ -440,9 +478,10 @@ class BarBasic:
     def set_barh(self, bar_height: float = 0.86, **kwargs):
         """Sets barh properties, addition `kwargs` are passed to ax.barh(**kwargs)
 
-        Parameters:
+        Parameters
         ----------
-            `bar_height (float, optional):` Height of the bars (Note this is horizontal barplot). Defaults to 0.86.
+        bar_height : float, optional
+            Height of the bars (Note this is horizontal barplot), by default 0.86
         """
         self.barh_props = {**kwargs}
         self.barh_props["height"] = bar_height
@@ -452,11 +491,14 @@ class BarBasic:
     ):
         """Sets xtick properties, additional `kwargs` are passed to ax.tick_params(**.kwargs)
 
-        Parameters:
+        Parameters
         ----------
-            `axis (str, optional):` Defines tick axis. Defaults to "x".
-            `color (str, optional):` Sets tick color. Defaults to "#777777".
-            `labelsize (float, optional):` Sets tick size. Defaults to 12.
+        axis : str, optional
+            Defines tick axis, by default "x"
+        colors : str, optional
+            Sets tick color, by default "#777777"
+        labelsize : float, optional
+            Sets tick size, by default 12
         """
         self.xtick_props = {
             "axis": axis,
@@ -470,10 +512,14 @@ class BarBasic:
     ):
         """Sets ytick properties, additional `kwargs` are passed to ax.tick_params(**kwargs)
 
-        Parameters:
+        Parameters
         ----------
-            `axis (str, optional):` Defines tick axis. Defaults to "y".
-            `labelsize (float, optional):` Sets tick size. Defaults to 12.
+        axis : str, optional
+            Defines tick axis, by default "y"
+        colors : str, optional
+            Sets tick color, by default "#777777"
+        labelsize : float, optional
+            Sets tick size, by default 10
         """
         self.ytick_props = {
             "axis": axis,
@@ -492,12 +538,16 @@ class BarBasic:
     ) -> None:
         """Sets the plots grid, additional `kwargs` are passed to ax.grid(**kwargs)
 
-        Parameters:
+        Parameters
         ----------
-            which (str, optional): The grid lines to apply the changes on. Defaults to "major".
-            axis (str, optional): Sets the axis of the grid. Defaults to "x".
-            linestyle (str, optional): Grids line style. Defaults to "-".
-            grid_behind (bool, optional): Sets the grid behind the bars. Defaults to True.
+        which : str, optional
+            The grid lines to apply the changes on, by default "major"
+        axis : str, optional
+            Sets the axis of the grid, by default "x"
+        linestyle : str, optional
+            Grids line style, by default "-"
+        grid_behind : bool, optional
+            Sets the grid behind the bars, by default True
         """
         self.ax.set_axisbelow(grid_behind)
         self.grid_props = {
@@ -506,8 +556,6 @@ class BarBasic:
             "linestyle": linestyle,
             **kwargs,
         }
-
-    # ANIMATION MODULES
 
     def set_bar_annots(
         self,
@@ -522,16 +570,16 @@ class BarBasic:
         """Sets bar annotation properties, additional kwargs are passed to `ax.text(**kwargs)`.
         (Note these annotations are the texts near the bars)
 
-        Parameters:
+        Parameters
         ----------
-            `text_callback (Callable[[float], Union[str, float]], optional):` Callback function for customizing the text. Defaults to
-             >>> lambda val:np.round(val, 2)
-             args:
-                float: Bar magnitude (x value of bar)
-
-            `xoffset (float, optional):` X offset relative to bar length. Defaults to 0.1.
-            `yoffset (float, optional):` Y offset relative to bar height. Defaults to -0.1.
-            `ha (str, optional):` Horizontal alignment. Defaults to "left".
+        text_callback : _type_, optional
+            Callback function for customizing the text, by default lambda val:np.round(val, 2)
+        xoffset : float, optional
+            X offset relative to bar length, by default 0.1
+        yoffset : float, optional
+             Y offset relative to bar height, by default -0.1
+        ha : str, optional
+            Horizontal alignment, by default "left"
         """
         self.bar_annot_props = {
             "callback": text_callback,
@@ -546,12 +594,15 @@ class BarBasic:
         key: str,
         callback: list[Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None]],
     ):
-        """Adds extra callback functions for additional customizations.
+        """Adds extra callback functions for additional customizations
 
-        Parameters:
+        Parameters
         ----------
-            `key (str):` Unique identifier for each callback functions.
-            `callback (list[Callable[[plt.Axes], None]]):` Callback function for additional customization,
+        key : str
+            Unique identifier for each callback functions
+        callback : list[Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None]]
+            Callback function for additional customization
+            ```
                 args:
                     plt.Axes: The matplotlib Axes used for the barplot
                     int: Current animation frame / dataframe row
@@ -560,6 +611,7 @@ class BarBasic:
 
                 Example:
                 >>> lambda ax, *args: ax.set_xcale("log)
+            ```
         """
         self.extra_callbacks[key] = callback
 
@@ -571,8 +623,10 @@ class BarBasic:
     def _update(self, i: int) -> None:
         """FuncAnimation update
 
-        Args:
-            i (int): Animation frame.
+        Parameters
+        ----------
+        i : int
+            Animation frame
         """
         self.ax.clear()
 
@@ -630,9 +684,10 @@ class BarBasic:
     def animate(self, interval: int = 50, **kwargs) -> None:
         """Main module to create the animation, additional `kwargs` are passed to animation.FuncAnimation(**kwargs)
 
-        Parameters:
+        Parameters
         ----------
-            interval (int, optional): Interval between each frame. Defaults to 50ms.
+        interval : int, optional
+            Interval between each frame. Defaults to 50ms, by default 50
 
         """
         self.ani = animation.FuncAnimation(
@@ -646,11 +701,15 @@ class BarBasic:
         return self.ani
 
     def save(self, filename: str, fps: int, extension: str = "mp4", **kwargs):
-        """Saves the current animation.
+        """Saves the current animation
 
-        Args:
-            filename (str): Filename
-            fps (int): Video fps / frames per second.
-            extension (str, optional): File extension. Defaults to 'mp4'.
-        """
-        self.ani.save(f"{filename}.{extension}", fps=24)
+        Parameters
+        ----------
+        filename : str
+            ilename
+        fps : int
+            Video fps / frames per second
+        extension : str, optional
+            File extension, by default "mp4"
+        """ 
+        self.ani.save(f"{filename}.{extension}", fps=24, **kwargs)
