@@ -2,7 +2,7 @@ tests/data/ccodes.csv
 tests/data/cn_dict.csv 
 tests/data/data2.csv
 tests/data/mapdata.csv 
-
+tests/test.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

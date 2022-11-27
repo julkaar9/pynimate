@@ -9,8 +9,8 @@ where = ["src"]
 
 [project]
 name = "pynimate"
-version = "1.0.0"
-description = "python package for statistical data animations"
+version = "1.0.1"
+description = "Python package for statistical data animations"
 readme = "README.md"
 authors = [{ name = "julkar9", email = "julkar9dev@gmail.com" }]
 license = { file = "LICENSE" }
@@ -18,11 +18,13 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["animations", "framework", "data"]
+keywords = ["animations", "framework", "data", "plots"]
 dependencies = [
     "numpy",
     "pandas",
@@ -36,5 +38,6 @@ dev = ["black","bumpver", "isort", "pip-tools"]
 
 [project.urls]
 Homepage = "https://github.com/julkaar9/pynimate"
+Documentation = "https://julkaar9.github.io/pynimate/"
 
  

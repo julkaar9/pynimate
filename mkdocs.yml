@@ -14,10 +14,19 @@ copyright: Copyright &copy; 2022 julkar9
 
 theme:
   name: material
+  features: 
+    - content.code.annotate 
+    - content.tooltips 
+    - navigation.indexes 
+    - navigation.sections
+    - navigation.tabs 
+    - navigation.top
+    - navigation.tracking 
+    - toc.follow
   palette:
     - scheme: default
       primary: white
-      accent: indigo
+      accent: teal
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
@@ -27,12 +36,20 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
 
 nav:
   - Home: index.md
-  - Reference:
-    - BarBasic: reference/barBasic.md
-    - Datafier: reference/datafier.md
+  - User Guide:
+    - Getting started: guide/starter.md
+    - Customizations: guide/customization.md
+  - Api Reference:
+    - Animators:
+      - BarBasic: reference/barBasic.md
+    - Data Handlers:
+      - Datafier: reference/datafier.md
+    - Utils: reference/utils.md
 # Customization
 extra:
   analytics:

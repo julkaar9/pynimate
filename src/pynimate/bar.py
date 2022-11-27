@@ -70,7 +70,7 @@ class BarBasic:
              Sets rounded bar edges, by default False
 
         ```
-            ip_frac is the percentage of NaN values to be linearly interpolated\n
+            ip_frac is the percentage of NaN values to be linearly interpolated for column ranks\n
             Consider this example
             >>>               a    b
             >>> date
@@ -700,7 +700,7 @@ class BarBasic:
         )
         return self.ani
 
-    def save(self, filename: str, fps: int, extension: str = "mp4", **kwargs):
+    def save(self, filename: str, fps: int, extension: str = "gif", **kwargs):
         """Saves the current animation
 
         Parameters
@@ -711,5 +711,5 @@ class BarBasic:
             Video fps / frames per second
         extension : str, optional
             File extension, by default "mp4"
-        """ 
-        self.ani.save(f"{filename}.{extension}", fps=24, **kwargs)
+        """
+        self.ani.save(f"{filename}.{extension}", fps=fps, **kwargs)

@@ -19,7 +19,7 @@ It is assumed `pyniamte` is imported as `nim`.
 >>> bar.save('sample', fps=24)
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from .bar import BarBasic
 from .datafier import Datafier

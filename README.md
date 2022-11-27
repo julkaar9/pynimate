@@ -1,5 +1,6 @@
 # Pynimate
 Python package for statistical data animations.
+![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example3.gif)
 
 ## How to use
 pynimate expects pandas dataframe formatted in this manner:  
@@ -32,3 +33,4 @@ bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 bar.animate()
 plt.show()
 ```
+![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example2.gif)

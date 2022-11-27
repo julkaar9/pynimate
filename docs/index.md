@@ -4,7 +4,7 @@ Python package for statistical data animations.
 ## How to use
 pynimate expects pandas dataframe formatted in this manner:  
 Where the time column is set to index.
-```
+```python
 time, col1, col2, col3
 2012   1     2     1
 2013   1     1     2
@@ -32,3 +32,5 @@ bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 bar.animate()
 plt.show()
 ```
+
+![](assets/example2.gif)

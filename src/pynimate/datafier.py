@@ -31,7 +31,7 @@ class Datafier:
         ip_freq : str
             Interpolation frequency
         ip_frac : float, optional
-            Interpolation fraction (check end of docstring), by default 0.5
+            Rank interpolation fraction (check end of docstring), by default 0.5
         n_bars : int, optional
             Number of bars to be visible on the plot Defaults to 10 or less, by default 10
         palettes : list[str], optional

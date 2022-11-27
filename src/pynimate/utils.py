@@ -4,18 +4,20 @@ import numpy as np
 
 def human_readable(num: Union[float, int], precision: int = 2, *args) -> str:
     """Converts large numeric values(>10^3) into human readable strings.
-    ie. 1000 -> 1k,
-    1000000 -> 1M, etc.
+    `ie. 1000 -> 1k`,
+    `1000000 -> 1M`, etc. `args` are passed to function formatter
 
-    Parameters:
+    Parameters
     ----------
-        num (float | int): Numeric value.
-        precision (int, optional): Rounding precision. Defaults to 2.
-        args: For function formatter arguments.
+    num : Union[float, int]
+        Numeric value
+    precision : int, optional
+        Rounding precision, by default 2
 
-    Returns:
-    ----------
-        str: Human readable numeric string.
+    Returns
+    -------
+    str
+        Human readable numeric string
     """
     if num == np.nan:
         return ""
