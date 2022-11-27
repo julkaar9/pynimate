@@ -13,7 +13,12 @@ df = pd.DataFrame(
     }
 ).set_index("time")
 bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
+bar.set_figure(figsize=(12.8, 7.2))
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 bar.animate()
-bar.save('exm2', 24, 'gif',  )
-#plt.show()
+bar.save(
+    "exm2",
+    24,
+    "gif",
+)
+# plt.show()

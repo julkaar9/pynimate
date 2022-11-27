@@ -32,5 +32,4 @@ bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 bar.animate()
 plt.show()
-```
-![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example2.gif)
+``` 
