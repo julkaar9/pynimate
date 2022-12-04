@@ -1,11 +1,14 @@
 # Pynimate
+
+[![PyPI](https://img.shields.io/pypi/v/pynimate?color=orange)](https://pypi.org/project/pynimate/) 
+
 Python package for statistical data animations.
 ![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example3.gif)
 
 ## How to use
-pynimate expects pandas dataframe formatted in this manner:  
+Pynimate expects pandas dataframe formatted in this manner:  
 Where the time column is set to index.
-```
+```python
 time, col1, col2, col3
 2012   1     2     1
 2013   1     1     2
@@ -28,8 +31,11 @@ df = pd.DataFrame(
         "Argentina": [1, 4, 5],
     }
 ).set_index("time")
+
+cnv = nim.Canvas()
 bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
-bar.animate()
+cnv.add(bar)
+cnv.animate()
 plt.show()
 ``` 

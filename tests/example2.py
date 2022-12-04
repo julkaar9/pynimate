@@ -12,13 +12,14 @@ df = pd.DataFrame(
         "Argentina": [1, 4, 5],
     }
 ).set_index("time")
+cnv = nim.Canvas(figsize=(12.8, 7.2))
 bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
-bar.set_figure(figsize=(12.8, 7.2))
-bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
-bar.animate()
-bar.save(
-    "exm2",
-    24,
-    "gif",
-)
-# plt.show()
+bar.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
+cnv.add_plot(bar)
+cnv.animate()
+# cnv.save(
+#     "exm2",
+#     24,
+#     "gif",
+# )
+plt.show()

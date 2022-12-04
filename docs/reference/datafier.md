@@ -6,7 +6,7 @@
       docstring_style: numpy
       merge_init_into_class: true
       members:
-        - prepared_data
+        - add_var
         - intepolateEven
         - get_prepared_data
         - get_top_cols

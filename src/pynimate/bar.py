@@ -1,6 +1,5 @@
+from types import SimpleNamespace
 from typing import Callable, Union
-
-import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -18,7 +17,9 @@ class BarBasic:
         ip_frac: float = 0.5,
         n_bars: int = 10,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None] = None,
+        post_update: Callable[
+            [plt.Axes, int, pd.DataFrame, pd.DataFrame, SimpleNamespace], None
+        ] = None,
         annot_bars: bool = True,
         fixed_xlim: bool = True,
         xticks: bool = True,
@@ -32,6 +33,12 @@ class BarBasic:
         ----------
         data : pd.DataFrame
             The data to be prepared, should be in this format where time is set to index.
+            ```
+                Example:
+                >>> time  col1 col2 col3 ...
+                >>> 2012   1    0    2
+                >>> 2013   2    3    1
+            ```
         time_format : str
             Index datetime format
         ip_freq : str
@@ -42,17 +49,18 @@ class BarBasic:
             Number of bars to be visible on the plot Defaults to 10 or less, by default 10
         palettes : list[str], optional
             List of color palettes to generate bar colors, by default ["viridis"]
-        post_update : Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None], optional
-            callback function for additional customization,, by default None\n
+        post_update : Callable[[plt.Axes, int, Datafier, SimpleNamespace], None], optional
+            callback function for additional customization, by default None\n
             ```
                 args:
                     plt.Axes: The matplotlib Axes used for the barplot
                     int: Current animation frame / dataframe row
-                    pd.DataFrame: The actual data
-                    pd.DataFrame: Dataframe containing bar ranks
+                    Datafier: The underlying datafier instance
+                    SimpleNamespace: Contains the following attributes -
+                    bar_rank, bar_length, top_bars, bar_colors
 
                 example:
-                >>> def post_update(ax, i, data, df_ranks):
+                >>> def post_update(ax, i, datafier, bar_attr):
                 >>>     # sets log scale for x-axis
                 >>>     ax.set_xscale("log")
             ```
@@ -85,22 +93,22 @@ class BarBasic:
             the rest will back filled.
 
             >>>                 a         b
-            >>> 2021-11-13  1.000000  4.000000  << original value ---------------
-            >>> 2021-11-14  1.333333  4.666667                                   |
-            >>> 2021-11-15  1.666667  5.333333                                   |  50% linearly
-            >>> 2021-11-16  2.000000  6.000000  <- linear interpolation          |  interpolated
-            >>> 2021-11-17  2.000000  6.000000      upto here                    |  rest are filled.
-            >>> 2021-11-18  2.000000  6.000000  << original value (upper bound)--
-            This adds some stability in the barChartRace and reduces constantly shaking of bars.```
+            >>> 2021-11-13  1.00  4.00  << original value ---------------
+            >>> 2021-11-14  1.33  4.67                                   |
+            >>> 2021-11-15  1.67  5.33                                   |  50% linearly
+            >>> 2021-11-16  2.00  6.00  <- linear interpolation          |  interpolated
+            >>> 2021-11-17  2.00  6.00      upto here                    |  rest are filled.
+            >>> 2021-11-18  2.00  6.00  << original value (upper bound)--
+            This adds some stability in the barChartRace and reduces constantly shaking of bars.
+        ```
         """
 
         self.n_bars = min(n_bars, len(data.columns))
-        (self.data, self.df_ranks, self.bar_colors,) = self.get_datafier_data(
-            data, time_format, ip_freq, ip_frac, n_bars, palettes
-        )
+        self.datafier = Datafier(data, time_format, ip_freq, ip_frac, n_bars, palettes)
+
         self.post_update = post_update or (lambda *args: None)
 
-        self.time_range = list(self.data.index)
+        self.time_range = list(self.datafier.data.index)
         self.length = len(self.time_range)
 
         self.annot_bars = annot_bars
@@ -110,11 +118,13 @@ class BarBasic:
         self.grid = grid
         self.rounded_edges = rounded_edges
 
-        self.set_figure()
+        fig, self.ax = plt.subplots()
+        plt.close(fig)
 
         self.text_collection = {}
         self.extra_callbacks = {}
 
+        self.set_xylim()
         self.set_barh()
         self.set_bar_border_props()
         self.set_xticks()
@@ -124,16 +134,34 @@ class BarBasic:
 
         self.set_time()
 
-    def get_datafier_data(self, *args) -> tuple:
-        """Handles the required data for animation
-        override this if you use custom data handlers instead of Datafier
+    def add_var(self, row_var: pd.DataFrame = None, col_var: pd.DataFrame = None):
+        """Adds additional variables to the data, both row and column wise.\n
+        Row wise data format: The index should be equal to that of the actual data.
+        ```
+            time  leap_year col2   ...
+            2012    yes      0
+            2013    no       3
 
+        ```
+        Column wise data format: The index should be equal to the columns of the actual data.
+        ```
+            index  continent   col2 ...
+            ind    Asia         0
+            usa    N America    3
+            jap    Asia         2
+        ```
+        Parameters
+        ----------
+        row_var : pd.DataFrame, optional
+            Dataframe containing variables related to time, by default None
+        col_var : pd.DataFrame, optional
+            Dataframe containing variables related to columns, by default None
         """
-        data_handler = Datafier(*args)
-        return data_handler.prepared_data()
+        self.datafier.add_var(row_var, col_var)
 
     def set_bar_color(self, colors: Union[list, dict[str, str]]):
-        """If colors is a list, length of colors should be equal to no of columns. If it is a dict, all columns should be mapped to a color.
+        """If colors is a list, length of colors should be equal to no of `datafier.bar_colors`.
+        If it is a dict, all columns of `datafier.top_cols` should be mapped to a color.
 
         Parameters
         ----------
@@ -141,30 +169,36 @@ class BarBasic:
             list of colors or dict of column to color mapping
         """
         assert len(colors) == len(
-            self.data.columns
+            self.datafier.bar_colors.keys()
         ), "Number of colors does not match number of columns"
         if isinstance(colors, list):
-            self.bar_colors = {
-                k: v2 for v2, (k, v1) in zip(colors, self.bar_colors.items())
+            self.datafier.bar_colors = {
+                k: v2 for v2, (k, v1) in zip(colors, self.datafier.bar_colors.items())
             }
         elif isinstance(colors, dict):
-            self.bar_colors = colors
+            self.datafier.bar_colors = colors
         else:
             ValueError("colors must be list or dict")
 
-    def set_figure(
-        self,
-        figsize: tuple[int, int] = (16, 9),
-        xlim: list[float] = [],
-        ylim: list[float] = [],
-        **kwargs,
-    ) -> None:
-        """ets figure size, xlim and ylim. Additional kwargs ara passed to plt.subplots(**kwargs)
+    def set_axes(self, ax: plt.Axes) -> None:
+        """Sets the Axes of this plot.
 
         Parameters
         ----------
-        figsize : tuple[int, int], optional
-            plot figure size, by default (16, 9)
+        ax : plt.Axes
+            Axes of this plot
+        """
+        self.ax = ax
+
+    def set_xylim(
+        self,
+        xlim: list[float] = [],
+        ylim: list[float] = [],
+    ) -> None:
+        """Sets figure size, xlim and ylim. Additional kwargs ara passed to plt.subplots(**kwargs)
+
+        Parameters
+        ----------
         xlim : list[float], optional
             x axis limits in this format [min, max], by default [min, max + 5]
         ylim : list[float], optional
@@ -178,20 +212,19 @@ class BarBasic:
         if hasattr(self, "fig"):
             plt.close(self.fig)
 
-        self.fig, self.ax = plt.subplots(1, 1, figsize=figsize, **kwargs)
         if xlim != None:
             if xlim == []:
-                self.total_max = self.data.max().max()
+                self.total_max = self.datafier.data.max().max()
                 xlim = [None, self.total_max + 5]
             self.xlim = xlim
-            self.ax.set_xlim(xlim)
+            # self.ax.set_xlim(xlim)
         if ylim == []:
             ylim = [0.5, self.n_bars + 0.6]
         self.ylim = ylim
 
-    def getTopXY(self, i: int) -> tuple:
+    def getTopXY(self, i: int) -> SimpleNamespace:
         """Prepares top n_bar columns and their respective attributes such as position, length, colors.
-        Not to be used outside animation update.
+        Not meant to be used outside animation update.
 
         Parameters
         ----------
@@ -200,17 +233,19 @@ class BarBasic:
 
         Returns
         -------
-        tuple
-            Bar locationn length, columns and their respective colors
+        SimpleNamespace
+            Bar rank, length. Top columns and their respective colors
         """
 
-        bar_location = self.df_ranks.iloc[i].values
-        top_filt = (bar_location >= 1) & (bar_location <= self.n_bars)
-        bar_location = bar_location[top_filt]
-        bar_length = self.data.iloc[i].values[top_filt]
-        cols = self.data.columns[top_filt]
-        colors = [self.bar_colors[column] for column in cols]
-        return bar_location, bar_length, cols, colors
+        bar_rank = self.datafier.df_ranks.iloc[i].values
+        top_filt = (bar_rank >= 1) & (bar_rank <= self.n_bars)
+        bar_rank = bar_rank[top_filt]
+        bar_length = self.datafier.data.iloc[i].values[top_filt]
+        cols = self.datafier.data.columns[top_filt]
+        colors = [self.datafier.bar_colors[column] for column in cols]
+        return SimpleNamespace(
+            bar_rank=bar_rank, bar_length=bar_length, top_bars=cols, bar_colors=colors
+        )
 
     def set_title(
         self,
@@ -245,7 +280,6 @@ class BarBasic:
                     "s": title,
                     "color": color,
                     "size": size,
-                    "transform": self.ax.transAxes,
                 },
                 **kwargs,
             },
@@ -284,7 +318,6 @@ class BarBasic:
                     "s": text,
                     "color": color,
                     "size": size,
-                    "transform": self.ax.transAxes,
                 },
                 **kwargs,
             },
@@ -293,8 +326,8 @@ class BarBasic:
     def set_time(
         self,
         callback: Callable[
-            [int, pd.DataFrame, list, any], str
-        ] = lambda i, data, time, rank: time[i],
+            [int, Datafier], str
+        ] = lambda i, datafier: datafier.data.index[i],
         x: float = 0.97,
         y: float = 0.27,
         size: float = 46,
@@ -303,18 +336,16 @@ class BarBasic:
         color: str = "#777777",
         **kwargs,
     ) -> None:
-        """_summary_
+        """Annotates the time in the plot and additional `kwargs` are passed to plt.text(**kwargs)
 
         Parameters
         ----------
-        callback : Callable[ [int, pd.DataFrame, list, any], str ], optional
-            Callback function to customize the time text, by default `lambda i, data, time, rank: time[i]`
+        callback : Callable[ [int, pd.DataFrame], str ], optional
+            Callback function to customize the time text, by default `lambda i, datafier: datafier.data.index[i]`
         ```
             args:
             i: Animation frame / data row index
-            data: The actual data
-            time: The time index, i.e data.index
-            rank: Dataframe containing the bar rankings
+            datafier: The datafier instance, access the data using `datafier.data`
         ```
         x : float, optional
             x coordinate of the text, by default 0.97
@@ -339,7 +370,6 @@ class BarBasic:
                     "size": size,
                     "weight": weight,
                     "ha": ha,
-                    "transform": self.ax.transAxes,
                 },
                 **kwargs,
             },
@@ -349,7 +379,7 @@ class BarBasic:
         self,
         key: str,
         text: str = None,
-        callback: Callable[[int, pd.DataFrame, list, pd.DataFrame], str] = None,
+        callback: Callable[[int, Datafier], str] = None,
         x: float = 0,
         y: str = 0,
         size: float = 13,
@@ -365,16 +395,14 @@ class BarBasic:
               overwrite them if you wish to use callbacks instead of texts in title or xlabel.
         text : str, optional
             The text to be added in the plot, by default None
-        callback : Callable[[int, pd.DataFrame, list, pd.DataFrame], str], optional
+        callback : Callable[[int, pd.DataFrame], str], optional
             Callback function to customize the text, by default None\n
             ```
             Example:
-            >>> lambda i, data, time, rank: time[i]
+            >>> lambda i, datafier: datafier.data.index[i]
             args:
             i: Animation frame / data row index
-            data: The actual data
-            time: The time index, i.e data.index
-            rank: Dataframe containing the bar rankings
+            datafier: The datafier instance
             ```
         x : float, optional
             X coordinate of the text, by default 0
@@ -395,7 +423,6 @@ class BarBasic:
                     "s": text,
                     "color": color,
                     "size": size,
-                    "transform": self.ax.transAxes,
                 },
                 **kwargs,
             },
@@ -447,7 +474,7 @@ class BarBasic:
     def _get_rounded_eges(
         self,
     ) -> None:
-        """Created bar border properties.
+        """Creates bar border properties.
         See https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.patches.FancyBboxPatch.html
         """
         border = self.bar_border_props
@@ -471,7 +498,6 @@ class BarBasic:
                 mutation_aspect=border["mutation_aspect"],
                 **border["kwargs"],
             )
-            # p_bbox.set_edgecolor(border["edge_color"])
             patch.remove()
             self.new_patches.append(p_bbox)
 
@@ -549,7 +575,7 @@ class BarBasic:
         grid_behind : bool, optional
             Sets the grid behind the bars, by default True
         """
-        self.ax.set_axisbelow(grid_behind)
+        self.grid_behind = grid_behind
         self.grid_props = {
             "which": which,
             "axis": axis,
@@ -592,7 +618,12 @@ class BarBasic:
     def add_extras(
         self,
         key: str,
-        callback: list[Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None]],
+        callback: list[
+            Callable[
+                [plt.Axes, int, Datafier, SimpleNamespace],
+                None,
+            ]
+        ],
     ):
         """Adds extra callback functions for additional customizations
 
@@ -606,8 +637,9 @@ class BarBasic:
                 args:
                     plt.Axes: The matplotlib Axes used for the barplot
                     int: Current animation frame / dataframe row
-                    pd.DataFrame: The actual data
-                    pd.DataFrame: Dataframe containing bar ranks
+                    Datafier: The underlying datafier instance
+                    SimpleNamespace: Contains the following attributes -
+                    bar_rank, bar_length, top_bars, bar_colors
 
                 Example:
                 >>> lambda ax, *args: ax.set_xcale("log)
@@ -615,12 +647,18 @@ class BarBasic:
         """
         self.extra_callbacks[key] = callback
 
-    def _init(self) -> None:
+    def init(self) -> None:
         """FuncAnimation init"""
-        bar_location, bar_length, cols = self.getTopXY(0)
-        self.ax.barh(bar_location, bar_length, tick_label=cols, **self.barh_props)
+        bar_attr = self.getTopXY(0)
+        self.ax.set_axisbelow(self.grid_behind)
+        self.ax.barh(
+            bar_attr.bar_rank,
+            bar_attr.bar_length,
+            tick_label=bar_attr.top_bars,
+            **self.barh_props,
+        )
 
-    def _update(self, i: int) -> None:
+    def update(self, i: int) -> None:
         """FuncAnimation update
 
         Parameters
@@ -634,18 +672,21 @@ class BarBasic:
             self.ax.set_xlim(self.xlim)
         self.ax.set_ylim(self.ylim)
 
-        Y, X, cols, colors = self.getTopXY(i)
+        bar_attr = self.getTopXY(i)
 
         self.ax.barh(
-            Y,
-            X,
-            tick_label=cols,
-            color=colors,
+            bar_attr.bar_rank,
+            bar_attr.bar_length,
+            tick_label=bar_attr.top_bars,
+            color=bar_attr.bar_colors,
             **self.barh_props,
         )
 
         if self.annot_bars:
-            for x, y in zip(X, Y):
+            for x, y in zip(
+                bar_attr.bar_length,
+                bar_attr.bar_rank,
+            ):
                 self.ax.text(
                     x + self.bar_annot_props["xoffset"],
                     y + self.bar_annot_props["yoffset"],
@@ -666,50 +707,22 @@ class BarBasic:
         for k, v in self.text_collection.items():
             if v[0]:
                 self.ax.text(
-                    s=v[0](i, self.data, self.time_range, self.df_ranks), **v[1]
+                    s=v[0](i, self.datafier),
+                    transform=self.ax.transAxes,
+                    **v[1],
                 )
             else:
-                self.ax.text(**v[1])
+                self.ax.text(
+                    **v[1],
+                    transform=self.ax.transAxes,
+                )
 
         for k, v in self.extra_callbacks.items():
-            v(self.ax)
+            v(self.ax, i, self.datafier, bar_attr)
 
-        self.post_update(self.ax, i, self.data, self.df_ranks)
+        self.post_update(self.ax, i, self.datafier, bar_attr)
 
         if self.rounded_edges:
             self._get_rounded_eges()
             for patch in self.new_patches:
                 self.ax.add_patch(patch)
-
-    def animate(self, interval: int = 50, **kwargs) -> None:
-        """Main module to create the animation, additional `kwargs` are passed to animation.FuncAnimation(**kwargs)
-
-        Parameters
-        ----------
-        interval : int, optional
-            Interval between each frame. Defaults to 50ms, by default 50
-
-        """
-        self.ani = animation.FuncAnimation(
-            self.fig,
-            self._update,
-            frames=self.length,
-            interval=interval,
-            blit=False,
-            **kwargs,
-        )
-        return self.ani
-
-    def save(self, filename: str, fps: int, extension: str = "gif", **kwargs):
-        """Saves the current animation
-
-        Parameters
-        ----------
-        filename : str
-            ilename
-        fps : int
-            Video fps / frames per second
-        extension : str, optional
-            File extension, by default "mp4"
-        """
-        self.ani.save(f"{filename}.{extension}", fps=fps, **kwargs)

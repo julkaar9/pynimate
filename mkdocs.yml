@@ -10,10 +10,12 @@ repo_name: julkaar9/pynimate
 repo_url: https://github.com/julkaar9/pynimate
 
 # Copyright
-copyright: Copyright &copy; 2022 julkar9
+copyright: Copyright &copy; 2022 Md Julkarnaeen
 
 theme:
   name: material
+  logo: assets/pynimate_logo.png
+  favicon: assets/favicon.png
   features: 
     - content.code.annotate 
     - content.tooltips 
@@ -46,6 +48,7 @@ nav:
     - Customizations: guide/customization.md
   - Api Reference:
     - Animators:
+      - Canvas: reference/canvas.md
       - BarBasic: reference/barBasic.md
     - Data Handlers:
       - Datafier: reference/datafier.md

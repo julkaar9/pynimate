@@ -25,5 +25,4 @@ def human_readable(num: Union[float, int], precision: int = 2, *args) -> str:
     while abs(num) >= 1000:
         magnitude += 1
         num /= 1000.0
-    # add more suffixes if you need them
-    return f'{np.round(num, 2)}{["", "K", "M", "B", "T", "Q"][magnitude]}'
+    return f'{np.round(num, precision)}{["", "K", "M", "B", "T", "Q"][magnitude]}'

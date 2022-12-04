@@ -1,4 +1,8 @@
+![](assets/pynimate_logo2.png)
+
 # Pynimate
+[![PyPI](https://img.shields.io/pypi/v/pynimate?color=orange)](https://pypi.org/project/pynimate/) 
+
 Python package for statistical data animations.
 
 ## How to use
@@ -27,9 +31,12 @@ df = pd.DataFrame(
         "Argentina": [1, 4, 5],
     }
 ).set_index("time")
+
+cnv = nim.Canvas()
 bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
-bar.animate()
+cnv.add(bar)
+cnv.animate()
 plt.show()
 ```
 

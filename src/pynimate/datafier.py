@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 import seaborn as sns
 
 
@@ -54,12 +53,12 @@ class Datafier:
             the rest will back filled.
 
             >>>               a    b
-            >>> 2021-11-13  1.000000  4.000000  << original value ---------------
-            >>> 2021-11-14  1.333333  4.666667                                   |
-            >>> 2021-11-15  1.666667  5.333333                                   |  50% linearly
-            >>> 2021-11-16  2.000000  6.000000  <- linear interpolation          |  interpolated
-            >>> 2021-11-17  2.000000  6.000000      upto here                    |  rest are filled.
-            >>> 2021-11-18  2.000000  6.000000  << original value (upper bound)--
+            >>> 2021-11-13  1.00  4.000  << original value ---------------
+            >>> 2021-11-14  1.33  4.67                                   |
+            >>> 2021-11-15  1.67  5.33                                   |  50% linearly
+            >>> 2021-11-16  2.00  6.00  <- linear interpolation          |  interpolated
+            >>> 2021-11-17  2.00  6.00      upto here                    |  rest are filled.
+            >>> 2021-11-18  2.00  6.00  << original value (upper bound)--
             This adds some stability in the barChartRace and reduces constantly shaking of bars.
         ```
         """
@@ -74,24 +73,51 @@ class Datafier:
         self.top_cols = self.get_top_cols()
         self.bar_colors = self.get_bar_colors()
 
-    def prepared_data(
-        self,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
-        """_summary_
+    def add_var(self, row_var: pd.DataFrame = None, col_var: pd.DataFrame = None):
+        """Adds additional variables to the data, both row and column wise.\n
+        Row wise data format: The index should be equal to that of the actual data.
+        ```
+            time  leap_year col2   ...
+            2012    yes      0
+            2013    no       3
 
-        Returns
-        -------
-        tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]
-            Tuple containing the following data
-            ```
-                pd.DataFrame: The actual data interpolated
-                pd.DataFrame: Dataframe containing bar ranks
-                dict[str, str]: Dict containing column to color mapping
-            ```
+        ```
+        Column wise data format: The index should be equal to the columns of the actual data.
+        ```
+            index  continent   col2 ...
+            ind    Asia         0
+            usa    N America    3
+            jap    Asia         2
+        ```
+        Parameters
+        ----------
+        row_var : pd.DataFrame, optional
+            Dataframe containing variables related to time, by default None
+        col_var : pd.DataFrame, optional
+            Dataframe containing variables related to columns, by default None
         """
-        self.data.columns = list(self.data.columns)
-        self.df_ranks.columns = list(self.df_ranks.columns)
-        return self.data, self.df_ranks, self.bar_colors
+        self.row_var = self.interpolateEven(row_var, self.ip_freq) if row_var else None
+        self.col_var = col_var
+
+    # def prepared_data(
+    #     self,
+    # ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
+    #     """_summary_
+
+    #     Returns
+    #     -------
+    #     tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]
+    #         Tuple containing the following data
+    #         ```
+    #             pd.DataFrame: The actual data interpolated
+    #             pd.DataFrame: Dataframe containing bar ranks
+    #             dict[str, str]: Dict containing column to color mapping
+    #         ```
+    #     """
+    #     self.data.columns = list(self.data.columns)
+    #     self.df_ranks.columns = list(self.df_ranks.columns)
+
+    #     return self.data, self.df_ranks, self.bar_colors
 
     def interpolate(
         self, data: pd.DataFrame, freq: str, method: str = "linear"
@@ -107,7 +133,7 @@ class Datafier:
         )
         return data
 
-    def intepolateEven(
+    def interpolateEven(
         self, data: pd.DataFrame, freq: str, method: str = "linear"
     ) -> pd.DataFrame:
         """Interpolates the given dataframe according to the frequency
@@ -138,8 +164,14 @@ class Datafier:
             .sort_index()
             .interpolate(method=method)
         )
+
         data = data[data.select_dtypes(exclude="number").columns].join(
             num_data, how="right"
+        )
+        data[data.select_dtypes(exclude="number").columns] = (
+            data[data.select_dtypes(exclude="number").columns]
+            .fillna(method="bfill")
+            .fillna(method="ffill")
         )
         return data
 
@@ -172,7 +204,7 @@ class Datafier:
         df_ranks = self.n_bars + 1 - df_ranks
         data.replace(np.nan, 0, inplace=True)
         df_ranks.replace(np.nan, -1, inplace=True)
-        data = self.intepolateEven(data, freq=self.ip_freq)
+        data = self.interpolateEven(data, freq=self.ip_freq)
         df_ranks = df_ranks.reindex(data.index)
         # calculate the no of nans in each interval
         # see https://stackoverflow.com/questions/69951782/pandas-interpolate-with-condition

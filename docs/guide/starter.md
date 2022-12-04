@@ -1,5 +1,5 @@
 # Welcome to pynimate
-pynimate is a python package for statistical data animations.
+Pynimate is a python package for statistical data animations.
 
 ## Installation
 ### with pip
@@ -15,6 +15,10 @@ Pynimate is generally imported as `nim` and this convention is followed througho
 ``` python
 import pynimate as nim
 ```
+
+## Canvas
+The Canvas class is used as a base for the animations, it handles the matplotlib figure, subplots
+as well as creating and saving animations.
 
 ## Basic Animations
 We will go through some basic data animations using pynimate.
@@ -33,7 +37,7 @@ time, col1, col2, col3
 2015   2.5   2     3.5
 ```
 ### Pandas setup
-Use pandas to import your data and the time column to index.
+Use pandas to import your data and set the time column as index.
 ```python 
 import pandas as pd
 df = pd.read_csv('data'csv').set_index('time')
@@ -111,12 +115,15 @@ df = pd.DataFrame(
     }
 ).set_index("time")
 
+cnv = nim.Canvas()
 # Interpolation frequency is 2 days
 bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
 # use set_time to draw the datetime in the canvas
 # here we are using a callback that returns datetime formatted in month, year
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
-bar.animate()
+# add the bar plot to the canvas
+cnv.add(bar)
+cnv.animate()
 plt.show()
 ```
 
