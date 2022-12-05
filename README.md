@@ -1,3 +1,5 @@
+![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/pynimate_logo2.png)
+
 # Pynimate
 
 [![PyPI](https://img.shields.io/pypi/v/pynimate?color=orange)](https://pypi.org/project/pynimate/) 
@@ -33,7 +35,7 @@ df = pd.DataFrame(
 ).set_index("time")
 
 cnv = nim.Canvas()
-bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
+bar = nim.Barplot(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 cnv.add(bar)
 cnv.animate()

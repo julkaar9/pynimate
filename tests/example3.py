@@ -44,7 +44,7 @@ bar_cols = {
 }
 
 cnv = nim.Canvas(figsize=(12.8, 7.2), facecolor="#001219")
-bar = nim.BarBasic(
+bar = nim.Barplot(
     df, "%Y-%m-%d", "3d", post_update=post, rounded_edges=True, grid=False
 )
 bar.add_var(col_var=col)

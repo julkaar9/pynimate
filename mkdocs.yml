@@ -49,7 +49,7 @@ nav:
   - Api Reference:
     - Animators:
       - Canvas: reference/canvas.md
-      - BarBasic: reference/barBasic.md
+      - Barplot: reference/barplot.md
     - Data Handlers:
       - Datafier: reference/datafier.md
     - Utils: reference/utils.md

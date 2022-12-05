@@ -1,6 +1,6 @@
-# BarBasic
-## BarBasic
-::: pynimate.bar.BarBasic
+# Barplot
+## Barplot
+::: pynimate.bar.Barplot
     handler: python
     options:
       docstring_style: numpy

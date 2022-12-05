@@ -3,7 +3,7 @@ Pynimate
 =====
 Python package for statistical data animations.
 
-Bar Example
+Barplot Example
 -------------
 
 It is assumed `pyniamte` is imported as `nim`.
@@ -12,7 +12,7 @@ It is assumed `pyniamte` is imported as `nim`.
 >>> import pandas as pd
 >>> df = pd.read_csv("sample.csv").set_index("time")
 >>> nim.Canvas()
->>> bar = nim.BarBasic(df, '%Y-%m-%d', 'MS')
+>>> bar = nim.Barplot(df, '%Y-%m-%d', 'MS')
 >>> bar.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
 >>> bar.set_bar_annots(text_callback=human_readable)
 >>> cnv.add_plot(bar)
@@ -23,5 +23,5 @@ It is assumed `pyniamte` is imported as `nim`.
 __version__ = "1.0.1"
 
 from .canvas import Canvas
-from .bar import BarBasic
+from .bar import Barplot
 from .datafier import Datafier

@@ -24,7 +24,7 @@ as well as creating and saving animations.
 We will go through some basic data animations using pynimate.
 
 ## Bar Chart Race
-Create a Bar Chart Race using the `BarBasic` module.
+Create a Bar Chart Race using the `Barplot` module.
 
 Pandas is a dependency and used for data manipulation, your data have to be a pandas `DataFrame`.
 The data needs to be in the following format,  
@@ -57,8 +57,8 @@ df = pd.DataFrame(
     }
 ).set_index("time")
 ```
-### BarBasic
-BarBasic takes three required arguments.    
+### Barplot
+Barplot takes three required arguments.    
 `data`: The data to be plotted and animated  
 `time_format`: Time format is the date time format of the data index. In our case it is `"%Y-%m-%d"`  
 `ip_freq`: Most data in their original form are not suitable for animations, Why?
@@ -97,7 +97,7 @@ know what the original values are between the actual intervals.
 
 That is something for the user to decide. If you a data large enough, you will not need interpolation.  
 
-Now that the fundamentals are discussed, use BarBasic to create the animation.  
+Now that the fundamentals are discussed, use Barplot to create the animation.  
 ```py
 # import matplotlib if you wish to see the animation in gui
 from matplotlib import pyplot as plt
@@ -117,7 +117,7 @@ df = pd.DataFrame(
 
 cnv = nim.Canvas()
 # Interpolation frequency is 2 days
-bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
+bar = nim.Barplot(df, "%Y-%m-%d", "2d")
 # use set_time to draw the datetime in the canvas
 # here we are using a callback that returns datetime formatted in month, year
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
@@ -128,7 +128,7 @@ plt.show()
 ```
 
 ### Save the animation
-Use `BarBasic.save()` to save the animation
+Use `Barplot.save()` to save the animation
 #### As GIF
 Matplotlib uses pillow under the hood to save gifs, however you can use writer of your choice.
 ```py
@@ -145,9 +145,9 @@ or
 ```py
 conda install ffmpeg
 ```
-Use `BarBasic.save()` to save the animation
+Use `Canvas.save()` to save the animation
 ```py
-bar.save("file", 24 ,"mp4")
+cnv.save("file", 24 ,"mp4")
 ```
 
 ## Result!

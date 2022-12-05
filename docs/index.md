@@ -33,7 +33,7 @@ df = pd.DataFrame(
 ).set_index("time")
 
 cnv = nim.Canvas()
-bar = nim.BarBasic(df, "%Y-%m-%d", "2d")
+bar = nim.Barplot(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 cnv.add(bar)
 cnv.animate()

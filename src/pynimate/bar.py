@@ -8,7 +8,7 @@ from matplotlib.patches import FancyBboxPatch
 from pynimate.datafier import Datafier
 
 
-class BarBasic:
+class Barplot:
     def __init__(
         self,
         data: pd.DataFrame,
@@ -92,7 +92,7 @@ class BarBasic:
             with ip_frac set to 0.5, 50% of NaN's will be linearly interpolated while\n
             the rest will back filled.
 
-            >>>                 a         b
+            >>>              a      b
             >>> 2021-11-13  1.00  4.00  << original value ---------------
             >>> 2021-11-14  1.33  4.67                                   |
             >>> 2021-11-15  1.67  5.33                                   |  50% linearly
@@ -209,8 +209,8 @@ class BarBasic:
                 len(xlim) == 2 or len(xlim) == 0
             ), "xlim is incorrect (correct format- [minLim, maxLim]"
         # closes the previous figure window
-        if hasattr(self, "fig"):
-            plt.close(self.fig)
+        # if hasattr(self, "fig"):
+        #     plt.close(self.fig)
 
         if xlim != None:
             if xlim == []:
