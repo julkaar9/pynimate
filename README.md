@@ -36,8 +36,8 @@ df = pd.DataFrame(
 
 cnv = nim.Canvas()
 bar = nim.Barplot(df, "%Y-%m-%d", "2d")
-bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
-cnv.add(bar)
+bar.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
+cnv.add_plot(bar)
 cnv.animate()
 plt.show()
 ``` 

@@ -122,7 +122,7 @@ bar = nim.Barplot(df, "%Y-%m-%d", "2d")
 # here we are using a callback that returns datetime formatted in month, year
 bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
 # add the bar plot to the canvas
-cnv.add(bar)
+cnv.add_plot(bar)
 cnv.animate()
 plt.show()
 ```
