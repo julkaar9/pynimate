@@ -1,11 +1,12 @@
 from typing import Union
+
 import numpy as np
 
 
 def human_readable(num: Union[float, int], precision: int = 2, *args) -> str:
     """Converts large numeric values(>10^3) into human readable strings.
     `ie. 1000 -> 1k`,
-    `1000000 -> 1M`, etc. `args` are passed to function formatter
+    `1000000 -> 1M`, etc.
 
     Parameters
     ----------

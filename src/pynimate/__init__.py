@@ -6,7 +6,7 @@ Python package for statistical data animations.
 Barplot Example
 -------------
 
-It is assumed `pyniamte` is imported as `nim`.
+It is assumed `pynimate` is imported as `nim`.
 >>> import pynimate as nim
 >>> from pynimate.utils import human_readable
 >>> import pandas as pd
@@ -20,8 +20,8 @@ It is assumed `pyniamte` is imported as `nim`.
 >>> cnv.save('sample', fps=24)
 """
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
-from .canvas import Canvas
 from .bar import Barplot
+from .canvas import Canvas
 from .datafier import Datafier

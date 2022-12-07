@@ -13,18 +13,18 @@ class Datafier:
         n_bars: int = 10,
         palettes: list[str] = ["viridis"],
     ) -> None:
-        """Contains data preparation modules, which includes interpolation, rank generation, color_generation
-
+        """Contains data preparation modules, which includes interpolation, rank generation, color_generation.
+        data should be in this format where time is set to index
+        ```
+            Example:
+            >>> time  col1 col2 col3 ...
+            >>> 2012   1    0    2
+            >>> 2013   2    3    1
+        ```
         Parameters
         ----------
         data : pd.DataFrame
-            The data to be prepared, should be in this format where time is set to index.
-            ```
-                Example:
-                >>> time  col1 col2 col3 ...
-                >>> 2012   1    0    2
-                >>> 2013   2    3    1
-            ```
+            The data to be prepared, should be in this format where time is set to index
         time_format : str
             Index datetime format
         ip_freq : str
@@ -32,13 +32,14 @@ class Datafier:
         ip_frac : float, optional
             Rank interpolation fraction (check end of docstring), by default 0.5
         n_bars : int, optional
-            Number of bars to be visible on the plot Defaults to 10 or less, by default 10
+            Number of bars to be visible on the plot, by default 10 or less
         palettes : list[str], optional
-            List of color palettes to generate bar
-                colors. Defaults to ["viridis"], by default ["viridis"]
+            List of color palettes to generate bar colors, by default ["viridis"]
 
         ```
-            ip_frac is the percentage of NaN values to be linearly interpolated\n
+            ip_frac is the percentage of NaN values to be linearly
+            interpolated for column ranks
+
             Consider this example
             >>>               a    b
             >>> date
@@ -49,18 +50,22 @@ class Datafier:
             >>> 2021-11-17  NaN  NaN
             >>> 2021-11-18  2.0  6.0
 
-            with ip_frac set to 0.5, 50% of NaN's will be linearly interpolated while\n
-            the rest will back filled.
+            with ip_frac set to 0.5, 50% of NaN's will be linearly
+            interpolated while the rest will back filled.
 
-            >>>               a    b
-            >>> 2021-11-13  1.00  4.000  << original value ---------------
-            >>> 2021-11-14  1.33  4.67                                   |
-            >>> 2021-11-15  1.67  5.33                                   |  50% linearly
-            >>> 2021-11-16  2.00  6.00  <- linear interpolation          |  interpolated
-            >>> 2021-11-17  2.00  6.00      upto here                    |  rest are filled.
-            >>> 2021-11-18  2.00  6.00  << original value (upper bound)--
-            This adds some stability in the barChartRace and reduces constantly shaking of bars.
+            >>>              a      b
+            >>> 2021-11-13  1.00  4.00  << original value --------
+            >>> 2021-11-14  1.33  4.67                            |
+            >>> 2021-11-15  1.67  5.33                            |  50% linearly
+            >>> 2021-11-16  2.00  6.00  <- linear interpolation   |  interpolated
+            >>> 2021-11-17  2.00  6.00      upto here             |  rest are filled.
+            >>> 2021-11-18  2.00  6.00  << original value---------
+
+            This adds some stability in the barChartRace
+            and reduces constantly shaking of bars.
+
         ```
+
         """
 
         self.raw_data = data
@@ -154,17 +159,17 @@ class Datafier:
         """
         ncols = data.select_dtypes("number").columns
         num_data = data[ncols]
-        new_ind = pd.date_range(num_data.index.min(), num_data.index.max(), freq=freq)
-        new_ser = pd.Series(
-            [0] * len(new_ind), index=new_ind, name="new_ind"
-        ).to_frame()
-        num_data = (
-            new_ser.join(num_data, how="outer")
-            .drop("new_ind", axis=1)
-            .sort_index()
-            .interpolate(method=method)
-        )
-
+        if freq != None:
+            new_ind = pd.date_range(
+                num_data.index.min(), num_data.index.max(), freq=freq
+            )
+            new_ser = pd.Series(
+                [0] * len(new_ind), index=new_ind, name="new_ind"
+            ).to_frame()
+            num_data = (
+                new_ser.join(num_data, how="outer").drop("new_ind", axis=1).sort_index()
+            )
+        num_data = num_data.interpolate(method=method)
         data = data[data.select_dtypes(exclude="number").columns].join(
             num_data, how="right"
         )
@@ -226,7 +231,7 @@ class Datafier:
         return (data, df_ranks)
 
     def get_top_cols(self) -> list[int]:
-        """Selects columns that a rank < n_bars in any timestamp
+        """Selects columns where column_rank < n_bars in any timestamp
 
         Returns
         -------

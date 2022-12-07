@@ -43,7 +43,7 @@ import pandas as pd
 df = pd.read_csv('data'csv').set_index('time')
 ```
 
-Here is a sample data that we will work with
+Here is a sample data that we will work with.
 ```py
 
 df = pd.DataFrame(
@@ -59,8 +59,8 @@ df = pd.DataFrame(
 ```
 ### Barplot
 Barplot takes three required arguments.    
-`data`: The data to be plotted and animated  
-`time_format`: Time format is the date time format of the data index. In our case it is `"%Y-%m-%d"`  
+`data`: The data to be plotted and animated.  
+`time_format`: Time format is the date time format of the data index. In our case it is `"%Y-%m-%d"`.  
 `ip_freq`: Most data in their original form are not suitable for animations, Why?
 Lets understand the absolute basics of these animations. Consider this data:  
 ```python
@@ -71,7 +71,7 @@ time, col1, col2
 ```
 This will yield three bar plots. Now a typical video is of 24 fps, i.e every second consists of 24 frames.
 or in our case each second should consist of 24 images of static plots.  
-So if we were to plot this the video would be 3/24 second long.  
+So if we were to plot this, the video would be 3/24 second long.  
 
 This is where interpolation(Linear) comes to play, if we were to interpolate the data quarterly,  
 The new data will be
@@ -95,7 +95,8 @@ The interpolation is mostly used to make the video smooth.
 You might wonder whether this interpolation will misreprsent the plot. Considering there is no way to
 know what the original values are between the actual intervals.  
 
-That is something for the user to decide. If you a data large enough, you will not need interpolation.  
+That is something for the user to decide. If your data is large enough, you wont need interpolation.
+In such case set `ip_freq = None`.
 
 Now that the fundamentals are discussed, use Barplot to create the animation.  
 ```py
@@ -120,7 +121,7 @@ cnv = nim.Canvas()
 bar = nim.Barplot(df, "%Y-%m-%d", "2d")
 # use set_time to draw the datetime in the canvas
 # here we are using a callback that returns datetime formatted in month, year
-bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
+bar.set_time(callback=lambda i, datafier: datafier.data.index[i].strftime("%b, %Y"))
 # add the bar plot to the canvas
 cnv.add_plot(bar)
 cnv.animate()
@@ -128,11 +129,11 @@ plt.show()
 ```
 
 ### Save the animation
-Use `Barplot.save()` to save the animation
+Use `Canvas.save()` to save the animation.
 #### As GIF
 Matplotlib uses pillow under the hood to save gifs, however you can use writer of your choice.
 ```py
-bar.save("file", 24, "gif")
+cnv.save("file", 24, "gif")
 ```
 
 #### As mp4

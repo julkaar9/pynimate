@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Callable
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -27,6 +27,12 @@ class Canvas:
             Width, height in inches, by default (16, 9)
         post_update : Callable[[plt.Figure, list[list[plt.Axes]]], None], optional
             callback function for additional figure customization, by default None
+        
+        post_update args:
+        ```
+            plt.Figure: Matplotlib figure
+            list[list[plt.Axes]]]: Subplot Axes
+        ```
         """
         self.post_update = post_update or (lambda *args: None)
         self.fig, self.ax = plt.subplots(nrows, ncols, figsize=figsize, **kwargs)
@@ -39,7 +45,7 @@ class Canvas:
         self.length = 0
 
     def add_plot(self, plot, index: tuple[int, int] = (0, 0)) -> __qualname__:
-        """Adds a Plot_like instance for animation.
+        """Adds the plot to be animated with its ax index (for multiple subplots)
 
         Parameters
         ----------

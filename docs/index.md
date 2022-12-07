@@ -5,8 +5,17 @@
 
 Python package for statistical data animations.
 
+## Installation
+### with pip
+
+You can install pynimate using [`pip`][pip]
+  [pip]: https://pypi.org/project/pynimate/
+``` sh
+pip install pynimate
+```
+
 ## How to use
-pynimate expects pandas dataframe formatted in this manner:  
+Pynimate expects pandas dataframe formatted in this manner:  
 Where the time column is set to index.
 ```python
 time, col1, col2, col3
@@ -34,8 +43,8 @@ df = pd.DataFrame(
 
 cnv = nim.Canvas()
 bar = nim.Barplot(df, "%Y-%m-%d", "2d")
-bar.set_time(callback=lambda i, data, time, rank: time[i].strftime("%b, %Y"))
-cnv.add(bar)
+bar.set_time(callback=lambda i, datafier: datafier.data.index[i].strftime("%b, %Y"))
+cnv.add_plot(bar)
 cnv.animate()
 plt.show()
 ```

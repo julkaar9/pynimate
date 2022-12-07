@@ -7,6 +7,13 @@
 Python package for statistical data animations.
 ![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example3.gif)
 
+## Installation
+### with pip
+Pynimate is avaialbe at [pypi](https://pypi.org/project/pynimate/)
+``` sh
+pip install pynimate
+```
+
 ## How to use
 Pynimate expects pandas dataframe formatted in this manner:  
 Where the time column is set to index.
@@ -41,3 +48,8 @@ cnv.add_plot(bar)
 cnv.animate()
 plt.show()
 ``` 
+## Documentation
+The official documentation : https://julkaar9.github.io/pynimate/
+
+## License
+[MIT License (MIT)](LICENSE)

@@ -6,6 +6,7 @@
       docstring_style: numpy
       merge_init_into_class: true
       members:
+        - add_var
         - set_bar_color 
         - getTopXY
         - set_xylim

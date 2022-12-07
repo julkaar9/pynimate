@@ -10,7 +10,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 import pynimate as nim
 
 
-def post(ax, i, datafier, bar_attr):
+def post_update(ax, i, datafier, bar_attr):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["bottom"].set_visible(False)
@@ -48,7 +48,7 @@ bar_cols = {
 
 cnv = nim.Canvas(figsize=(12.8, 7.2), facecolor="#001219")
 bar = nim.Barplot(
-    df, "%Y-%m-%d", "3d", post_update=post, rounded_edges=True, grid=False
+    df, "%Y-%m-%d", "3d", post_update=post_update, rounded_edges=True, grid=False
 )
 bar.add_var(col_var=col)
 bar.set_bar_color(bar_cols)
@@ -75,7 +75,6 @@ cnv.add_plot(bar)
 cnv.animate()
 # plt.show()
 cnv.save("example3", 24, "gif")
-
 ```
 ## Result!
 ![](../assets/example3.gif)

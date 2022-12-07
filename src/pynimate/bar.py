@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 from typing import Callable, Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -27,18 +28,18 @@ class Barplot:
         grid: bool = True,
         rounded_edges: bool = False,
     ) -> None:
-        """Basic BarChartRace module that requires a valid time index
-
-        Parameters
-        ----------
-        data : pd.DataFrame
-            The data to be prepared, should be in this format where time is set to index.
+        """BarChartRace module that requires a valid time index.The data
+        should be in this format where time is set to index
             ```
                 Example:
                 >>> time  col1 col2 col3 ...
                 >>> 2012   1    0    2
                 >>> 2013   2    3    1
             ```
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The data to be prepared
         time_format : str
             Index datetime format
         ip_freq : str
@@ -46,24 +47,11 @@ class Barplot:
         ip_frac : float, optional
             Interpolation fraction (check end of docstring), by default 0.5
         n_bars : int, optional
-            Number of bars to be visible on the plot Defaults to 10 or less, by default 10
+            Number of bars to be visible on the plot, by default 10 or less
         palettes : list[str], optional
             List of color palettes to generate bar colors, by default ["viridis"]
         post_update : Callable[[plt.Axes, int, Datafier, SimpleNamespace], None], optional
-            callback function for additional customization, by default None\n
-            ```
-                args:
-                    plt.Axes: The matplotlib Axes used for the barplot
-                    int: Current animation frame / dataframe row
-                    Datafier: The underlying datafier instance
-                    SimpleNamespace: Contains the following attributes -
-                    bar_rank, bar_length, top_bars, bar_colors
-
-                example:
-                >>> def post_update(ax, i, datafier, bar_attr):
-                >>>     # sets log scale for x-axis
-                >>>     ax.set_xscale("log")
-            ```
+            callback function for additional customization, by default None
         annot_bars : bool, optional
             Sets bar annotations, by default True
         fixed_xlim : bool, optional
@@ -77,8 +65,25 @@ class Barplot:
         rounded_edges : bool, optional
              Sets rounded bar edges, by default False
 
+        post_update args:
         ```
-            ip_frac is the percentage of NaN values to be linearly interpolated for column ranks\n
+            plt.Axes: The matplotlib Axes used for the barplot
+            int: Current animation frame or dataframe row
+            Datafier: The underlying datafier instance
+            SimpleNamespace: Contains the following attributes -
+                bar_rank, bar_length, top_bars, bar_colors
+
+        example:
+
+        >>> def post_update(ax, i, datafier, bar_attr):
+        >>>     # sets log scale for x-axis
+        >>>     ax.set_xscale("log")
+        ```
+        ip_frac description:
+        ```
+            ip_frac is the percentage of NaN values to be linearly
+            interpolated for column ranks
+
             Consider this example
             >>>               a    b
             >>> date
@@ -89,17 +94,19 @@ class Barplot:
             >>> 2021-11-17  NaN  NaN
             >>> 2021-11-18  2.0  6.0
 
-            with ip_frac set to 0.5, 50% of NaN's will be linearly interpolated while\n
-            the rest will back filled.
+            with ip_frac set to 0.5, 50% of NaN's will be linearly
+            interpolated while the rest will back filled.
 
             >>>              a      b
-            >>> 2021-11-13  1.00  4.00  << original value ---------------
-            >>> 2021-11-14  1.33  4.67                                   |
-            >>> 2021-11-15  1.67  5.33                                   |  50% linearly
-            >>> 2021-11-16  2.00  6.00  <- linear interpolation          |  interpolated
-            >>> 2021-11-17  2.00  6.00      upto here                    |  rest are filled.
-            >>> 2021-11-18  2.00  6.00  << original value (upper bound)--
-            This adds some stability in the barChartRace and reduces constantly shaking of bars.
+            >>> 2021-11-13  1.00  4.00  << original value --------
+            >>> 2021-11-14  1.33  4.67                            |
+            >>> 2021-11-15  1.67  5.33                            |  50% linearly
+            >>> 2021-11-16  2.00  6.00  <- linear interpolation   |  interpolated
+            >>> 2021-11-17  2.00  6.00      upto here             |  rest are filled.
+            >>> 2021-11-18  2.00  6.00  << original value---------
+
+            This adds some stability in the barChartRace
+            and reduces constantly shaking of bars.
         ```
         """
 
@@ -136,7 +143,7 @@ class Barplot:
 
     def add_var(self, row_var: pd.DataFrame = None, col_var: pd.DataFrame = None):
         """Adds additional variables to the data, both row and column wise.\n
-        Row wise data format: The index should be equal to that of the actual data.
+        Row wise data format: The index should be equal to that of the actual data
         ```
             time  leap_year col2   ...
             2012    yes      0
@@ -161,7 +168,7 @@ class Barplot:
 
     def set_bar_color(self, colors: Union[list, dict[str, str]]):
         """If colors is a list, length of colors should be equal to no of `datafier.bar_colors`.
-        If it is a dict, all columns of `datafier.top_cols` should be mapped to a color.
+        If it is a dict, all columns of `datafier.top_cols` should be mapped to a color
 
         Parameters
         ----------
@@ -169,19 +176,23 @@ class Barplot:
             list of colors or dict of column to color mapping
         """
         assert len(colors) == len(
-            self.datafier.bar_colors.keys()
+            self.datafier.bar_colors
         ), "Number of colors does not match number of columns"
+
         if isinstance(colors, list):
             self.datafier.bar_colors = {
                 k: v2 for v2, (k, v1) in zip(colors, self.datafier.bar_colors.items())
             }
         elif isinstance(colors, dict):
+            assert (
+                colors.keys() == self.datafier.bar_colors.keys()
+            ), "All columns of datafier.top_cols are not present."
             self.datafier.bar_colors = colors
         else:
             ValueError("colors must be list or dict")
 
     def set_axes(self, ax: plt.Axes) -> None:
-        """Sets the Axes of this plot.
+        """Sets the Axes of this plot
 
         Parameters
         ----------
@@ -195,7 +206,7 @@ class Barplot:
         xlim: list[float] = [],
         ylim: list[float] = [],
     ) -> None:
-        """Sets figure size, xlim and ylim. Additional kwargs ara passed to plt.subplots(**kwargs)
+        """Sets xlim and ylim
 
         Parameters
         ----------
@@ -207,7 +218,7 @@ class Barplot:
         if xlim != None:
             assert (
                 len(xlim) == 2 or len(xlim) == 0
-            ), "xlim is incorrect (correct format- [minLim, maxLim]"
+            ), "xlim is incorrect (correct format - [minLim, maxLim])"
         # closes the previous figure window
         # if hasattr(self, "fig"):
         #     plt.close(self.fig)
@@ -224,7 +235,7 @@ class Barplot:
 
     def getTopXY(self, i: int) -> SimpleNamespace:
         """Prepares top n_bar columns and their respective attributes such as position, length, colors.
-        Not meant to be used outside animation update.
+        Not meant to be used outside animation update
 
         Parameters
         ----------
@@ -261,7 +272,7 @@ class Barplot:
         Parameters
         ----------
         title : str
-            _description_
+            Title text
         x : float, optional
             x coordinate of the text, by default 0
         y : float, optional
@@ -342,11 +353,6 @@ class Barplot:
         ----------
         callback : Callable[ [int, pd.DataFrame], str ], optional
             Callback function to customize the time text, by default `lambda i, datafier: datafier.data.index[i]`
-        ```
-            args:
-            i: Animation frame / data row index
-            datafier: The datafier instance, access the data using `datafier.data`
-        ```
         x : float, optional
             x coordinate of the text, by default 0.97
         y : float, optional
@@ -359,6 +365,13 @@ class Barplot:
             horizontal alignment, by default "right"
         color : str, optional
             text color, by default "#777777"
+
+        callback args:
+        ```
+            i: Animation frame / data row index
+            datafier: The datafier instance,
+                access the data using datafier.data
+        ```
         """
         self.text_collection["time"] = (
             callback,
@@ -392,18 +405,11 @@ class Barplot:
         ----------
         key : str
             Unique identifier for each texts, note: These keys, title, xlabel, time, are reserved.
-              overwrite them if you wish to use callbacks instead of texts in title or xlabel.
+              overwrite them if you wish to use callbacks instead of texts in title or xlabel
         text : str, optional
             The text to be added in the plot, by default None
         callback : Callable[[int, pd.DataFrame], str], optional
-            Callback function to customize the text, by default None\n
-            ```
-            Example:
-            >>> lambda i, datafier: datafier.data.index[i]
-            args:
-            i: Animation frame / data row index
-            datafier: The datafier instance
-            ```
+            Callback function to customize the text, by default None
         x : float, optional
             X coordinate of the text, by default 0
         y : str, optional
@@ -412,6 +418,16 @@ class Barplot:
             Text size, by default 13
         color : str, optional
             Text color, by default "#777777"
+
+        Callback args:
+        ```
+            args:
+            i: Animation frame / data row index
+            datafier: The datafier instance
+
+            Example:
+            >>> lambda i, datafier: datafier.data.index[i]
+        ```
         """
         assert text or callback, "Both text and callback cannot be None"
         self.text_collection[key] = (
@@ -431,7 +447,7 @@ class Barplot:
             self.text_collection[key][1].pop("s")
 
     def remove_text(self, keys: list[str]):
-        """Removes texts by key.
+        """Removes texts by key
 
         Parameters
         ----------
@@ -598,7 +614,7 @@ class Barplot:
 
         Parameters
         ----------
-        text_callback : _type_, optional
+        text_callback : Callable[[float], Union[str, float]], optional
             Callback function for customizing the text, by default lambda val:np.round(val, 2)
         xoffset : float, optional
             X offset relative to bar length, by default 0.1
@@ -630,20 +646,21 @@ class Barplot:
         Parameters
         ----------
         key : str
-            Unique identifier for each callback functions
+            Unique identifier for each callback function
         callback : list[Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None]]
             Callback function for additional customization
-            ```
-                args:
-                    plt.Axes: The matplotlib Axes used for the barplot
-                    int: Current animation frame / dataframe row
-                    Datafier: The underlying datafier instance
-                    SimpleNamespace: Contains the following attributes -
-                    bar_rank, bar_length, top_bars, bar_colors
 
-                Example:
-                >>> lambda ax, *args: ax.set_xcale("log)
-            ```
+        Callback args:    
+        ```
+            plt.Axes: The matplotlib Axes used for the barplot
+            int: Current animation frame / dataframe row
+            Datafier: The underlying datafier instance
+            SimpleNamespace: Contains the following attributes -
+            bar_rank, bar_length, top_bars, bar_colors
+
+            Example:
+            >>> lambda ax, *args: ax.set_xcale("log)
+        ```
         """
         self.extra_callbacks[key] = callback
 
