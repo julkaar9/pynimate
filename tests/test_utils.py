@@ -9,5 +9,5 @@ def test_human_readable_k():
     assert human_readable(21014, 3) == "21.014K"
 
 
-def test_human_readable_k():
+def test_human_readable_m():
     assert human_readable(5241725, 1) == "5.2M"

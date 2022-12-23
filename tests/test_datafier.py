@@ -142,4 +142,4 @@ def test_datafier_get_prepared_data(sample_bar_data1):
         }
     ).set_index("time")
     assert dfr.df_ranks.equals(df_ranks)
-    # assert dfr.data.equals(data)
+    assert dfr.data.equals(data)

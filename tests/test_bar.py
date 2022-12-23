@@ -62,13 +62,13 @@ def test_barplot_set_bar_color_error_col_mismatch(sample_bar_data1):
         assert bar.datafier.bar_colors == bar_colors
 
 
-def test_barplot_set_test_error_empty_text(sample_bar_data1):
+def test_barplot_set_text_error_empty_text(sample_bar_data1):
     with pytest.raises(AssertionError):
         bar = Barplot(sample_bar_data1, "%Y-%m-%d", "3MS")
         bar.set_text("text1")
 
 
-def test_barplot_set_test_error_text_priority(sample_bar_data1):
+def test_barplot_set_text_priority(sample_bar_data1):
     bar = Barplot(sample_bar_data1, "%Y-%m-%d", "3MS")
     bar.set_text("text1", text="Test", callback=lambda *args: "Test")
     assert "s" not in bar.text_collection["text1"][1]
