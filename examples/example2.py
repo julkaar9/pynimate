@@ -14,13 +14,13 @@ df = pd.DataFrame(
     }
 ).set_index("time")
 cnv = nim.Canvas(figsize=(12.8, 7.2))
-bar = nim.Barplot(df, "%Y-%m-%d", "2d")
+bar = nim.Barplot(df, "%Y-%m-%d", "2d", 0.1)
 bar.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
 cnv.add_plot(bar)
 cnv.animate()
-# cnv.save(
-#     "exm2",
-#     24,
-#     "gif",
-# )
+cnv.save(
+    "exm2",
+    24,
+    "gif",
+)
 plt.show()

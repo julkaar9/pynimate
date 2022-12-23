@@ -1,11 +1,11 @@
 legacy/*
 
-tests/data/ccodes.csv
-tests/data/cn_dict.csv 
-tests/data/data2.csv
-tests/data/mapdata.csv 
-tests/test.py
-tests/example4.py
+examples/data/ccodes.csv
+examples/data/cn_dict.csv 
+examples/data/data2.csv
+examples/data/mapdata.csv 
+examples/test.py
+examples/example4.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

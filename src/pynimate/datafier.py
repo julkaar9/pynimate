@@ -104,26 +104,6 @@ class Datafier:
         self.row_var = self.interpolateEven(row_var, self.ip_freq) if row_var else None
         self.col_var = col_var
 
-    # def prepared_data(
-    #     self,
-    # ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
-    #     """_summary_
-
-    #     Returns
-    #     -------
-    #     tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]
-    #         Tuple containing the following data
-    #         ```
-    #             pd.DataFrame: The actual data interpolated
-    #             pd.DataFrame: Dataframe containing bar ranks
-    #             dict[str, str]: Dict containing column to color mapping
-    #         ```
-    #     """
-    #     self.data.columns = list(self.data.columns)
-    #     self.df_ranks.columns = list(self.df_ranks.columns)
-
-    #     return self.data, self.df_ranks, self.bar_colors
-
     def interpolate(
         self, data: pd.DataFrame, freq: str, method: str = "linear"
     ) -> pd.DataFrame:
@@ -138,7 +118,7 @@ class Datafier:
         )
         return data
 
-    def interpolateEven(
+    def interpolate_even(
         self, data: pd.DataFrame, freq: str, method: str = "linear"
     ) -> pd.DataFrame:
         """Interpolates the given dataframe according to the frequency
@@ -209,7 +189,7 @@ class Datafier:
         df_ranks = self.n_bars + 1 - df_ranks
         data.replace(np.nan, 0, inplace=True)
         df_ranks.replace(np.nan, -1, inplace=True)
-        data = self.interpolateEven(data, freq=self.ip_freq)
+        data = self.interpolate_even(data, freq=self.ip_freq)
         df_ranks = df_ranks.reindex(data.index)
         # calculate the no of nans in each interval
         # see https://stackoverflow.com/questions/69951782/pandas-interpolate-with-condition

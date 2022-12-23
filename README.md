@@ -3,6 +3,8 @@
 # Pynimate
 
 [![PyPI](https://img.shields.io/pypi/v/pynimate?color=orange)](https://pypi.org/project/pynimate/) 
+[![License](https://img.shields.io/pypi/l/pynimate?color=green)](https://github.com/julkaar9/pynimate/blob/main/LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)  
 
 Python package for statistical data animations.
 ![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example3.gif)

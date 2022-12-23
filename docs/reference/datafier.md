@@ -7,7 +7,7 @@
       merge_init_into_class: true
       members:
         - add_var
-        - intepolateEven
+        - interpolate_even
         - get_prepared_data
         - get_top_cols
         - get_bar_colors

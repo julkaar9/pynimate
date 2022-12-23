@@ -74,4 +74,4 @@ bar.set_bar_border_props(
 cnv.add_plot(bar)
 cnv.animate()
 # plt.show()
-cnv.save("example3", 24, "gif")
+cnv.save("example3", 24, "mp4")

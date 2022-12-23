@@ -429,7 +429,7 @@ class Barplot:
             >>> lambda i, datafier: datafier.data.index[i]
         ```
         """
-        assert text or callback, "Both text and callback cannot be None"
+        assert text or callback, "Both text and callback cannot be None" 
         self.text_collection[key] = (
             callback,
             {
