@@ -547,6 +547,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pynimate.datafier.Datafier.interpolate_even" class="md-nav__link">
+    interpolate_even()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pynimate.datafier.Datafier.get_prepared_data" class="md-nav__link">
     get_prepared_data()
   </a>
@@ -646,6 +653,13 @@
         <li class="md-nav__item">
   <a href="#pynimate.datafier.Datafier.add_var" class="md-nav__link">
     add_var()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pynimate.datafier.Datafier.interpolate_even" class="md-nav__link">
+    interpolate_even()
   </a>
   
 </li>
@@ -880,6 +894,86 @@ Column wise data format: The index should be equal to the columns of the actual 
           <td>
                 <code>None</code>
           </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="pynimate.datafier.Datafier.interpolate_even" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">interpolate_even</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Interpolates the given dataframe according to the frequency</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>data</code></td>
+          <td>
+                <code><span title="pandas">pd</span>.<span title="pandas.DataFrame">DataFrame</span></code>
+          </td>
+          <td><p>Dataframe contaning the data</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>freq</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Interpolation frequency</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>method</code></td>
+          <td>
+                <code>str, optional</code>
+          </td>
+          <td><p>Interpolation method, by default "linear"</p></td>
+          <td>
+                <code>&#39;linear&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="pandas">pd</span>.<span title="pandas.DataFrame">DataFrame</span></code>
+          </td>
+          <td><p>Interpolated dataframe</p></td>
         </tr>
     </tbody>
   </table>
