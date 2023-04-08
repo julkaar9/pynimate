@@ -1,14 +1,16 @@
-from pynimate.datafier import Datafier
+# Legacy tests for datafier, will be removed in 2.0.0
 import pandas as pd
 
+from pynimate.datafier import Datafier
 
-def test_datafier_init(sample_bar_data1):
-    dfr = Datafier(sample_bar_data1, "%Y-%m-%d", "3MS", 0.1)
+
+def test_datafier_init(sample_data1):
+    dfr = Datafier(sample_data1, "%Y-%m-%d", "3MS", 0.1)
     assert dfr.n_bars == 5
 
 
-def test_datafier_interpolate_even(sample_bar_data2):
-    dfr = Datafier(sample_bar_data2, "%Y", "3MS")
+def test_datafier_interpolate_even(sample_data2):
+    dfr = Datafier(sample_data2, "%Y", "3MS")
     interpolated_data = pd.DataFrame(
         {
             "time": pd.to_datetime(
@@ -94,8 +96,8 @@ def test_datafier_get_bar_colors(map_data):
     assert dfr.get_bar_colors() == bar_colors
 
 
-def test_datafier_get_prepared_data(sample_bar_data1):
-    dfr = Datafier(sample_bar_data1, "%Y-%m-%d", "3MS")
+def test_datafier_get_prepared_data(sample_data1):
+    dfr = Datafier(sample_data1, "%Y-%m-%d", "3MS")
     dfr.df_ranks.index.name = "time"
     df_ranks = pd.DataFrame(
         {
