@@ -1,13 +1,15 @@
 import os
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-
-import pytest
 import pandas as pd
+import pytest
+
+from pynimate.datafier import BarDatafier, BaseDatafier
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 @pytest.fixture
-def sample_bar_data1() -> pd.DataFrame:
+def sample_data1() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "time": ["1960-01-01", "1961-01-01", "1962-01-01"],
@@ -21,7 +23,7 @@ def sample_bar_data1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def sample_bar_data2() -> pd.DataFrame:
+def sample_data2() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "time": ["2012", "2013", "2014"],
@@ -29,6 +31,16 @@ def sample_bar_data2() -> pd.DataFrame:
             "col2": [3, 2, 1],
         }
     ).set_index("time")
+
+
+@pytest.fixture
+def sample_data1_basedfr(sample_data1) -> BaseDatafier:
+    return BaseDatafier(sample_data1, "%Y-%m-%d", "3MS")
+
+
+@pytest.fixture
+def sample_data1_bardfr(sample_data1) -> BarDatafier:
+    return BarDatafier(sample_data1, "%Y-%m-%d", "3MS")
 
 
 @pytest.fixture
