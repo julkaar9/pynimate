@@ -1,31 +1,36 @@
-import os
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-import matplotlib.ticker as tick
 import pandas as pd
 from matplotlib import pyplot as plt
 
 import pynimate as nim
-from pynimate.utils import human_readable
 
+df = pd.DataFrame(
+    {
+        "time": ["1960-01-01", "1961-01-01", "1962-01-01"],
+        "Afghanistan": [1, 2, 3],
+        "Angola": [2, 3, 4],
+        "Albania": [1, 2, 5],
+        "USA": [5, 3, 4],
+        "Argentina": [1, 4, 5],
+    }
+).set_index("time")
 
-def post(ax, *args):
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.xaxis.set_major_formatter(tick.FuncFormatter(human_readable))
-
-
-dfr = nim.Datafier()
 cnv = nim.Canvas()
-df = pd.read_csv(dir_path + "/data/map.csv").set_index("time")
-bar = nim.Barplot(df, "%Y", "MS", post_update=post, grid=False)
-bar.set_title("Top 10 Richest Person in the World (yearly)")
-bar.set_xlabel("Net Worth in Billion USD")
+bar = nim.Barhplot.from_df(df, "%Y-%m-%d", "3d", rounded_edges=True)
 bar.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
-bar.set_bar_annots(text_callback=human_readable)
 cnv.add_plot(bar)
 cnv.animate()
-cnv.save("example1", 24, "mp4")
 plt.show()
+# cols = ["r", "g", "b"]
+# vals = [1, 2, 2.5]
+# ranks = [1, 2, 2.5]
+# col_zorder = {"r": 1, "g": 3, "b": 2}
+# fig, ax = plt.subplots()
+# ax.barh(ranks, vals, tick_label=cols, color=cols)
+# for z, patch in zip(col_zorder.values(), ax.patches):
+#     patch.set_zorder(z)
+#     print(patch, patch.zorder)
+# print()
+# for z, patch in zip(col_zorder.values(), ax.patches):
+#     print(patch, patch.zorder)
+
+# plt.show()
