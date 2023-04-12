@@ -301,7 +301,7 @@ class Barhplot(Baseplot):
             for patch in self.new_patches[::-1]:
                 self.ax.add_patch(patch)
 
-        for z, patch in zip(self.col_zorder.values(), self.ax.patches):
-            patch.set_zorder(z)
+        for ind, patch in enumerate(self.ax.patches):
+            patch.set_zorder(ind)
 
         super().update(i)
