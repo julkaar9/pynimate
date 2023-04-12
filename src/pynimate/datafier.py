@@ -279,6 +279,7 @@ class BaseDatafier:
         self.colorable_columns = self.raw_data.columns
         self.raw_data.index = pd.to_datetime(self.raw_data.index, format=time_format)
         self.expanded = self.data = self.raw_data
+        self.data = self.interpolate_data()
 
     def add_var(self, row_var: pd.DataFrame = None, col_var: pd.DataFrame = None):
         """Adds additional variables to the data, both row and column wise.\n
@@ -348,8 +349,8 @@ class BaseDatafier:
         data[obCols] = data[obCols].fillna(method="bfill").fillna(method="ffill")
         return data
 
-    def prepare_data(self):
-        raise NotImplementedError("Override prepare_data")
+    def interpolate_data(self):
+        return self.interpolate_even(self.data, self.ip_freq)
 
 
 class BarDatafier(BaseDatafier):
@@ -419,40 +420,35 @@ class BarDatafier(BaseDatafier):
         super().__init__(data, time_format, ip_freq, ip_method)
         self.ip_frac = ip_frac
         self.n_bars = min(n_bars, len(self.raw_data.columns))
-        self.data, self.df_ranks = self.get_prepared_data(self.raw_data, self.ip_frac)
+        self.df_ranks = self.get_data_ranks(self.ip_frac)
         self.top_cols = self.colorable_columns = self.get_top_cols()
 
-    def get_prepared_data(
-        self, data: pd.DataFrame, ip_frac: float = 0.5
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Creates interpolated data and column ranks
+    def interpolate_data(self) -> pd.DataFrame:
+        self.data = self.data.replace(np.nan, 0)
+        return super().interpolate_data()
+
+    def get_data_ranks(self, ip_frac: float = 0.1) -> pd.DataFrame:
+        """Creates column ranks and interpolates them.
 
         Parameters
         ----------
-        data : pd.DataFrame
-            Dataframe contaning the data
         ip_frac : float, optional
-            Interpolation fraction, by default 0.5
+            pct of nans to interpolate by 'self.method' rest will be backfilled, by default 0.1
 
         Returns
         -------
-        tuple[pd.DataFrame, pd.DataFrame]
-            Tuple containing the following data
-            ```
-                pd.DataFrame: Interpolated data values
-                pd.DataFrame: Interpolated column ranks
-            ```
+        pd.DataFrame
+            Interpolated column ranks
         """
 
-        df_ranks = data.rank(axis=1, method="first", ascending=False).clip(
+        df_ranks = self.raw_data.rank(axis=1, method="first", ascending=False).clip(
             upper=self.n_bars + 1
         )
 
         df_ranks = self.n_bars + 1 - df_ranks
-        data.replace(np.nan, 0, inplace=True)
         df_ranks.replace(np.nan, -1, inplace=True)
-        data = self.interpolate_even(data, freq=self.ip_freq)
-        df_ranks = df_ranks.reindex(data.index)
+
+        df_ranks = df_ranks.reindex(self.data.index)
         # calculate the no of nans in each interval
         # see https://stackoverflow.com/questions/69951782/pandas-interpolate-with-condition
         if ip_frac != 0:
@@ -470,9 +466,9 @@ class BarDatafier(BaseDatafier):
                     method="bfill", limit=int(np.ceil(w * ip_frac))
                 )
         df_ranks = df_ranks.interpolate()
-        return (data, df_ranks)
+        return df_ranks
 
-    def get_top_cols(self) -> list[int]:
+    def get_top_cols(self) -> list[str]:
         """Selects columns where column_rank < n_bars in any timestamp
 
         Returns
