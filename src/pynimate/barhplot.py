@@ -2,8 +2,8 @@ from types import SimpleNamespace
 from typing import Callable, Union
 
 import numpy as np
-from matplotlib.patches import FancyBboxPatch
 import pandas as pd
+from matplotlib.patches import FancyBboxPatch
 
 from pynimate.baseplot import Baseplot
 from pynimate.datafier import BarDatafier
@@ -144,7 +144,7 @@ class Barhplot(Baseplot):
         Returns
         -------
         SimpleNamespace
-            Bar rank, Bar length, top 'n' columns and their respective colors
+            bar_rank, bar_length, top_cols, column_colors
         """
 
         bar_rank = self.dfr.df_ranks.iloc[i].values
@@ -172,6 +172,7 @@ class Barhplot(Baseplot):
         for patch in reversed(self.ax.patches):
             bb = patch.get_bbox()
             color = patch.get_facecolor()
+            zorder = patch.zorder
             p_bbox = FancyBboxPatch(
                 (bb.xmin, bb.ymin),
                 abs(bb.width),
@@ -185,6 +186,7 @@ class Barhplot(Baseplot):
                 ec=border["edge_color"],
                 fc=color,
                 mutation_aspect=border["mutation_aspect"],
+                zorder=zorder,
                 **border["kwargs"],
             )
             patch.remove()
@@ -281,11 +283,9 @@ class Barhplot(Baseplot):
             color=self.bar_attr.column_colors,
             **self.barh_props,
         )
-
         if self.annot_bars:
-            for x, y in zip(
-                self.bar_attr.bar_length,
-                self.bar_attr.bar_rank,
+            for ind, (x, y) in enumerate(
+                zip(self.bar_attr.bar_length, self.bar_attr.bar_rank)
             ):
                 self.ax.text(
                     x + self.bar_annot_props["xoffset"],
@@ -293,10 +293,15 @@ class Barhplot(Baseplot):
                     self.bar_annot_props["callback"](x),
                     ha=self.bar_annot_props["ha"],
                     **self.bar_annot_props["kwargs"],
+                    zorder=ind,
                 )
 
         if self.rounded_edges:
             self._get_rounded_eges()
-            for patch in self.new_patches:
+            for patch in self.new_patches[::-1]:
                 self.ax.add_patch(patch)
+
+        for z, patch in zip(self.col_zorder.values(), self.ax.patches):
+            patch.set_zorder(z)
+
         super().update(i)
