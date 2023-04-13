@@ -32,7 +32,7 @@ dfx = pd.DataFrame(
 bar = nim.Barhplot.from_df(df, "%Y", "MS", post_update=post, grid=False)
 bar.set_title("Top 10 Richest Person in the World (yearly)")
 bar.set_xlabel("Net Worth in Billion USD")
-# bar.set_time(callback=lambda i, d, t, r: t[i].year)
+bar.set_time(callback=lambda i, dfr: dfr.data.index[i].strftime("%b, %Y"))
 bar.set_bar_annots(text_callback=human_readable)
 
 cnv.add_plot(bar)

@@ -362,6 +362,7 @@ class BarDatafier(BaseDatafier):
         ip_frac: float = 0.1,
         n_bars: int = 10,
         ip_method: str = "linear",
+        ip_fill_method="bfill",
     ) -> None:
         """Contains data preparation modules, which includes interpolation, rank generation, color_generation.
         data should be in this format where time is set to index
@@ -385,7 +386,8 @@ class BarDatafier(BaseDatafier):
             Number of bars to be visible on the plot, by default 10 or less
         ip_method : str, optional
             Interpolation Method, by default "linear"
-
+        ip_fill_method : str, optional
+            fill method for ip_frac, by default "bfill"
         ```
             ip_frac is the percentage of NaN values to be linearly
             interpolated for column ranks
@@ -400,25 +402,28 @@ class BarDatafier(BaseDatafier):
             >>> 2021-11-17  NaN  NaN
             >>> 2021-11-18  2.0  6.0
 
-            with ip_frac set to 0.5, 50% of NaN's will be linearly
-            interpolated while the rest will back filled.
+            with ip_frac set to 0.5, 50% of NaN's will be interpolated
+            by ip_method while the rest will be filled by ip_fill_method.
+            The example uses bfill, if ffill is used the filling will happen
+            before interpolation.
 
             >>>              a      b
             >>> 2021-11-13  1.00  4.00  << original value --------
             >>> 2021-11-14  1.33  4.67                            |
-            >>> 2021-11-15  1.67  5.33                            |  50% linearly
-            >>> 2021-11-16  2.00  6.00  <- linear interpolation   |  interpolated
-            >>> 2021-11-17  2.00  6.00      upto here             |  rest are filled.
-            >>> 2021-11-18  2.00  6.00  << original value---------
+            >>> 2021-11-15  1.67  5.33                            |  50% interpolated
+            >>> 2021-11-16  2.00  6.00  <- linear interpolation   |  by ip_method
+            >>> 2021-11-17  2.00  6.00      upto here             |  rest are filled
+            >>> 2021-11-18  2.00  6.00  << original value---------   by ip_fill_method
 
-            This adds some stability in the barChartRace
-            and reduces constantly shaking of bars.
+            This adds stability in the barChartRace
+            and reduces constant shaking of bars.
 
         ```
 
         """
         super().__init__(data, time_format, ip_freq, ip_method)
         self.ip_frac = ip_frac
+        self.ip_fill_method = ip_fill_method
         self.n_bars = min(n_bars, len(self.raw_data.columns))
         self.df_ranks = self.get_data_ranks(self.ip_frac)
         self.top_cols = self.colorable_columns = self.get_top_cols()
@@ -463,7 +468,7 @@ class BarDatafier(BaseDatafier):
             w = z / (y - 1)
             if w * ip_frac > 0:
                 df_ranks = df_ranks.interpolate(
-                    method="bfill", limit=int(np.ceil(w * ip_frac))
+                    method=self.ip_fill_method, limit=int(np.ceil(w * ip_frac))
                 )
         df_ranks = df_ranks.interpolate()
         return df_ranks
