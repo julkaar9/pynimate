@@ -106,7 +106,7 @@ class Baseplot:
         )
 
     def generate_column_colors(self) -> dict[str, str]:
-        """Generates column (bar) colors based on the given color palettes
+        """Generates column colors based on the given color palettes.
 
         Returns
         -------
@@ -133,19 +133,11 @@ class Baseplot:
             for column, color in zip(self.dfr.colorable_columns, all_colors)
         }
 
-    def _set_column_decorations(
+    def set_column_decorations(
         self,
         new_decorations: Union[str, list[str], dict[str, str]],
         old_decorations: dict[str, str],
     ) -> dict[str, str]:
-        """Sets column colors. If colors is a list, length of colors should be equal
-        to `len(column_colors)`
-
-        Parameters
-        ----------
-        colors : Union[str, list[str], dict[str, str]]
-            Single colors str or list of colors or dict of column to color mapping
-        """
         decorations = {}
         if isinstance(new_decorations, str):
             decorations = {k: new_decorations for (k, _) in old_decorations.items()}
@@ -178,9 +170,9 @@ class Baseplot:
         Parameters
         ----------
         colors : Union[str, list[str], dict[str, str]]
-            Single colors str or list of colors or dict of column to color mapping
+            Single color str or list of colors or dict of column to color mapping
         """
-        self.column_colors = self._set_column_decorations(colors, self.column_colors)
+        self.column_colors = self.set_column_decorations(colors, self.column_colors)
 
     # def set_column_colors(self, colors: Union[str, list[str], dict[str, str]]) -> None:
     #     """Sets column colors. If colors is a list, length of colors should be equal
