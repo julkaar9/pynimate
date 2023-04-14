@@ -53,8 +53,8 @@ class Barhplot(Baseplot):
 
         post_update args
         ```
-            self: Baseplot instance
-            i: Frame index
+        self: Baseplot instance
+        i: Frame index
 
         example:
 
@@ -108,7 +108,7 @@ class Barhplot(Baseplot):
         xoffset: float = 5,
         yoffset: float = 0.6,
     ) -> None:
-        """Sets xlim and ylim
+        """Sets xlim and ylim.
 
         Parameters
         ----------

@@ -15,7 +15,6 @@ for side in ["left", "right", "top", "bottom"]:
 
 
 def post_update(self, i):
-
     # annotates continents next to bars
     for ind, (bar, x, y) in enumerate(
         zip(self.bar_attr.top_cols, self.bar_attr.bar_length, self.bar_attr.bar_rank)
@@ -32,7 +31,7 @@ def post_update(self, i):
 
 
 df = pd.read_csv(dir_path + "/data/sample.csv").set_index("time")
-col = pd.DataFrame(
+col_var = pd.DataFrame(
     {
         "columns": ["Afghanistan", "Angola", "Albania", "USA", "Argentina"],
         "continent": ["Asia", "Africa", "Europe", "N America", "S America"],
@@ -49,7 +48,7 @@ bar_cols = {
 cnv = nim.Canvas(figsize=(12.8, 7.2), facecolor="#001219")
 
 dfr = nim.BarDatafier(df, "%Y-%m-%d", "3d")
-dfr.add_var(col_var=col)
+dfr.add_var(col_var=col_var)
 
 bar = nim.Barhplot(dfr, post_update=post_update, rounded_edges=True, grid=False)
 
@@ -75,5 +74,8 @@ bar.set_bar_border_props(
 )
 cnv.add_plot(bar)
 cnv.animate()
-plt.show()
-# cnv.save("example3", 24, "mp4")
+# plt.show()
+cnv.save(
+    "example3",
+    24,
+)

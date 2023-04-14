@@ -173,7 +173,7 @@ class Datafier:
         Parameters
         ----------
         data : pd.DataFrame
-            Dataframe contaning the data
+            Dataframe containing the data
         ip_frac : float, optional
             Interpolation fraction, by default 0.5
 
@@ -221,7 +221,7 @@ class Datafier:
         Returns
         -------
         list[int]
-            List of columns that will appear in the animation atleast once
+            List of columns that will appear in the animation at least once
         """
         top_cols = self.df_ranks.max(axis=0)
         top_cols = top_cols[top_cols >= 1]
@@ -315,7 +315,7 @@ class BaseDatafier:
         Parameters
         ----------
         data : pd.DataFrame
-            Dataframe contaning the data
+            Dataframe containing the data
         freq : str
             Interpolation frequency
         method : str, optional
@@ -349,7 +349,14 @@ class BaseDatafier:
         data[obCols] = data[obCols].fillna(method="bfill").fillna(method="ffill")
         return data
 
-    def interpolate_data(self):
+    def interpolate_data(self) -> pd.DataFrame:
+        """Interpolates the raw data
+
+        Returns
+        -------
+        pd.DataFrame
+            Interpolated data
+        """
         return self.interpolate_even(self.data, self.ip_freq)
 
 
@@ -364,7 +371,7 @@ class BarDatafier(BaseDatafier):
         ip_method: str = "linear",
         ip_fill_method="bfill",
     ) -> None:
-        """Contains data preparation modules, which includes interpolation, rank generation, color_generation.
+        """Contains data preparation modules, which includes interpolation, rank generation.
         data should be in this format where time is set to index
         ```
             Example:
@@ -372,6 +379,7 @@ class BarDatafier(BaseDatafier):
             >>> 2012   1    0    2
             >>> 2013   2    3    1
         ```
+
         Parameters
         ----------
         data : pd.DataFrame
@@ -388,9 +396,12 @@ class BarDatafier(BaseDatafier):
             Interpolation Method, by default "linear"
         ip_fill_method : str, optional
             fill method for ip_frac, by default "bfill"
+
+
+        ip_frac is the percentage of NaN values to be linearly
+        interpolated for column ranks
+
         ```
-            ip_frac is the percentage of NaN values to be linearly
-            interpolated for column ranks
 
             Consider this example
             >>>               a    b
@@ -401,12 +412,12 @@ class BarDatafier(BaseDatafier):
             >>> 2021-11-16  NaN  NaN
             >>> 2021-11-17  NaN  NaN
             >>> 2021-11-18  2.0  6.0
-
-            with ip_frac set to 0.5, 50% of NaN's will be interpolated
-            by ip_method while the rest will be filled by ip_fill_method.
-            The example uses bfill, if ffill is used the filling will happen
-            before interpolation.
-
+        ```
+        with ip_frac set to 0.5, 50% of NaN's will be interpolated
+        by ip_method while the rest will be filled by ip_fill_method.
+        The example uses bfill, if ffill is used the filling will happen
+        before interpolation.
+        ```
             >>>              a      b
             >>> 2021-11-13  1.00  4.00  << original value --------
             >>> 2021-11-14  1.33  4.67                            |
@@ -414,12 +425,9 @@ class BarDatafier(BaseDatafier):
             >>> 2021-11-16  2.00  6.00  <- linear interpolation   |  by ip_method
             >>> 2021-11-17  2.00  6.00      upto here             |  rest are filled
             >>> 2021-11-18  2.00  6.00  << original value---------   by ip_fill_method
-
-            This adds stability in the barChartRace
-            and reduces constant shaking of bars.
-
         ```
-
+        This adds stability in the barChartRace
+        and reduces constant shaking of bars.
         """
         super().__init__(data, time_format, ip_freq, ip_method)
         self.ip_frac = ip_frac
@@ -438,7 +446,7 @@ class BarDatafier(BaseDatafier):
         Parameters
         ----------
         ip_frac : float, optional
-            pct of nans to interpolate by 'self.method' rest will be backfilled, by default 0.1
+            pct of NaNs to interpolate by 'self.method' rest will be backfilled, by default 0.1
 
         Returns
         -------
@@ -478,8 +486,8 @@ class BarDatafier(BaseDatafier):
 
         Returns
         -------
-        list[int]
-            List of columns that will appear in the animation atleast once
+        list[str]
+            List of columns that will appear in the animation at least once
         """
         top_cols = self.df_ranks.max(axis=0)
         top_cols = top_cols[top_cols >= 1]
