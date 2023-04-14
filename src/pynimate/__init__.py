@@ -12,8 +12,7 @@ Barhplot Example
 ---------------
 
 It is assumed `pynimate` is imported as `nim`.
->>> import pynimate as nim
->>> from pynimate.utils import human_readable
+>>> import pynimate as nim 
 >>> import pandas as pd
 >>> df = pd.read_csv("sample.csv").set_index("time")
 >>> nim.Canvas()
