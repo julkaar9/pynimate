@@ -24,7 +24,7 @@ as well as creating and saving animations.
 We will go through some basic data animations using pynimate.
 
 ## Bar Chart Race
-Create a Bar Chart Race using the `Barplot` module.
+Create a Bar Chart Race using the `Barhplot` module.
 
 Pandas is a dependency and used for data manipulation, your data have to be a pandas `DataFrame`.
 The data needs to be in the following format,  
@@ -40,7 +40,7 @@ time, col1, col2, col3
 Use pandas to import your data and set the time column as index.
 ```python 
 import pandas as pd
-df = pd.read_csv('data'csv').set_index('time')
+df = pd.read_csv('data.csv').set_index('time')
 ```
 
 Here is a sample data that we will work with.
@@ -57,11 +57,26 @@ df = pd.DataFrame(
     }
 ).set_index("time")
 ```
-### Barplot
-Barplot takes three required arguments.    
+
+### Datafiers
+Datafiers or Data Modifiers are helper modules that handles the data preparation part.  
+The dafafier for Barhplot is BarDatafier
+### Barhplot
+Barhplot can be initialized in two different ways  
+either by passing the BarDatafier
+```py
+dfr = nim.BarDatafier(df, "%Y-%m-%d", "2d")  
+bar = nim.Barhplot(dfr)
+```
+or by passing the pandas dataframe directly
+```py  
+bar = nim.Barhplot.from_df(df, "%Y-%m-%d", "2d")
+```
+In both case there are three required arguments.  
+
 `data`: The data to be plotted and animated.  
-`time_format`: Time format is the date time format of the data index. In our case it is `"%Y-%m-%d"`.  
-`ip_freq`: Most data in their original form are not suitable for animations, Why?
+`time_format`: The date-time format of the data index. In our case it is `"%Y-%m-%d"`.  
+`ip_freq`: The interpolation frequency. Most data in their original form are not suitable for animations, Why?
 Lets understand the absolute basics of these animations. Consider this data:  
 ```python
 time, col1, col2
@@ -69,7 +84,7 @@ time, col1, col2
 2013   2     2   
 2014   3     1
 ```
-This will yield three bar plots. Now a typical video is of 24 fps, i.e every second consists of 24 frames.
+This will yield three bar plots, one for each row. Now a typical video is of 24 fps, i.e every second consists of 24 frames.
 or in our case each second should consist of 24 images of static plots.  
 So if we were to plot this, the video would be 3/24 second long.  
 
@@ -92,7 +107,7 @@ Now we have 9 rows, so our video will be 9/24 seconds long.
 In general you will be plotting a much larger data, so your video will be much larger.  
 The interpolation is mostly used to make the video smooth.  
 
-You might wonder whether this interpolation will misreprsent the plot. Considering there is no way to
+You might wonder whether this interpolation will misrepresent the plot. Considering there is no way to
 know what the original values are between the actual intervals.  
 
 That is something for the user to decide. If your data is large enough, you wont need interpolation.
@@ -101,8 +116,9 @@ In such case set `ip_freq = None`.
 Now that the fundamentals are discussed, use Barplot to create the animation.  
 ```py
 # import matplotlib if you wish to see the animation in gui
-from matplotlib import pyplot as plt
 import pandas as pd
+from matplotlib import pyplot as plt
+
 import pynimate as nim
 
 df = pd.DataFrame(
@@ -118,7 +134,7 @@ df = pd.DataFrame(
 
 cnv = nim.Canvas()
 # Interpolation frequency is 2 days
-bar = nim.Barplot(df, "%Y-%m-%d", "2d")
+bar = nim.Barhplot.from_df(df, "%Y-%m-%d", "2d")
 # use set_time to draw the datetime in the canvas
 # here we are using a callback that returns datetime formatted in month, year
 bar.set_time(callback=lambda i, datafier: datafier.data.index[i].strftime("%b, %Y"))
@@ -152,4 +168,4 @@ cnv.save("file", 24 ,"mp4")
 ```
 
 ## Result!
-![](../assets/example2.gif)
+![](../assets/example1.gif)

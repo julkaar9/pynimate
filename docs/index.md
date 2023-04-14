@@ -1,7 +1,11 @@
 ![](assets/pynimate_logo2.png)
 
 # Pynimate
-[![PyPI](https://img.shields.io/pypi/v/pynimate?color=orange)](https://pypi.org/project/pynimate/) 
+[![PyPI](https://img.shields.io/pypi/v/pynimate?color=orange)](https://pypi.org/project/pynimate/)
+[![Downloads](https://static.pepy.tech/personalized-badge/pynimate?period=total&units=international_system&left_color=grey&right_color=red&left_text=Downloads)](https://pepy.tech/project/pynimate) 
+![Tests](https://github.com/julkaar9/pynimate/actions/workflows/tests.yml/badge.svg)
+[![License](https://img.shields.io/pypi/l/pynimate?color=green)](https://github.com/julkaar9/pynimate/blob/main/LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)  
 
 Python package for statistical data animations.
 
@@ -26,8 +30,9 @@ time, col1, col2, col3
 ```
 ## Bar Chart Example
 ```python
-from matplotlib import pyplot as plt
 import pandas as pd
+from matplotlib import pyplot as plt
+
 import pynimate as nim
 
 df = pd.DataFrame(
@@ -42,11 +47,11 @@ df = pd.DataFrame(
 ).set_index("time")
 
 cnv = nim.Canvas()
-bar = nim.Barplot(df, "%Y-%m-%d", "2d")
+bar = nim.Barhplot.from_df(df, "%Y-%m-%d", "2d")
 bar.set_time(callback=lambda i, datafier: datafier.data.index[i].strftime("%b, %Y"))
 cnv.add_plot(bar)
 cnv.animate()
 plt.show()
 ```
 
-![](assets/example2.gif)
+![](assets/example1.gif)
