@@ -9,7 +9,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)  
 
 Python package for statistical data animations.
-![](https://github.com/julkaar9/pynimate/blob/gh-pages/assets/example3.gif)
+![](https://github.com/julkaar9/pynimate/blob/main/docs/assets/example3.gif)
 
 ## Installation
 ### with pip
