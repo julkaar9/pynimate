@@ -9,7 +9,7 @@ where = ["src"]
 
 [project]
 name = "pynimate"
-version = "1.1.0"
+version = "1.2.0"
 description = "Python package for statistical data animations"
 readme = "README.md"
 authors = [{ name = "julkar9", email = "julkar9dev@gmail.com" }]
@@ -34,7 +34,7 @@ dependencies = [
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
-dev = ["black", "isort", "pip-tools", "pytest"]
+dev = ["black", "isort","mkdocs-material", "pip-tools", "pytest", "mkdocstrings[python]"]
 
 [project.urls]
 Homepage = "https://github.com/julkaar9/pynimate"

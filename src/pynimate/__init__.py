@@ -24,7 +24,7 @@ It is assumed `pynimate` is imported as `nim`.
 >>> cnv.save('sample', fps=24)
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 from .bar import Barplot
 from .barhplot import Barhplot
