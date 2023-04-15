@@ -1,3 +1,4 @@
+import warnings
 from types import SimpleNamespace
 from typing import Callable, Union
 
@@ -109,7 +110,9 @@ class Barplot:
             and reduces constantly shaking of bars.
         ```
         """
-
+        warnings.warn(
+            "Barplot is deprecated, use Barhplot instead.", DeprecationWarning
+        )
         self.n_bars = min(n_bars, len(data.columns))
         self.datafier = Datafier(data, time_format, ip_freq, ip_frac, n_bars, palettes)
 
@@ -429,7 +432,7 @@ class Barplot:
             >>> lambda i, datafier: datafier.data.index[i]
         ```
         """
-        assert text or callback, "Both text and callback cannot be None" 
+        assert text or callback, "Both text and callback cannot be None"
         self.text_collection[key] = (
             callback,
             {
@@ -650,7 +653,7 @@ class Barplot:
         callback : list[Callable[[plt.Axes, int, pd.DataFrame, pd.DataFrame], None]]
             Callback function for additional customization
 
-        Callback args:    
+        Callback args:
         ```
             plt.Axes: The matplotlib Axes used for the barplot
             int: Current animation frame / dataframe row

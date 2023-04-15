@@ -27,7 +27,7 @@ class Canvas:
             Width, height in inches, by default (16, 9)
         post_update : Callable[[plt.Figure, list[list[plt.Axes]]], None], optional
             callback function for additional figure customization, by default None
-        
+
         post_update args:
         ```
             plt.Figure: Matplotlib figure
@@ -64,20 +64,27 @@ class Canvas:
         self.plots.append(plot)
         return self
 
-    def _init(self) -> None:
-        for plot in self.plots:
-            plot.init()
+    # def _init(self) -> None:
+    #     for plot in self.plots:
+    #         plot.init()
 
     def _update(self, i: int) -> None:
         self.post_update(self.fig, self.ax)
         for plot in self.plots:
             plot.update(min(plot.length - 1, i))
 
-    def animate(self, interval: int = 50, **kwargs) -> None:
+    def animate(
+        self,
+        frames_callback: Callable[[int], any] = lambda length: length,
+        interval: int = 50,
+        **kwargs,
+    ) -> None:
         """Main module to create the animation, additional `kwargs` are passed to animation.FuncAnimation(**kwargs)
 
         Parameters
         ----------
+        frames_callback : int, optional
+            Passed to funcAnimation frames, by default lambda length: length
         interval : int, optional
             Interval between each frame. Defaults to 50ms, by default 50
 
@@ -85,7 +92,7 @@ class Canvas:
         self.ani = animation.FuncAnimation(
             self.fig,
             self._update,
-            frames=self.length,
+            frames=frames_callback(self.length),
             interval=interval,
             blit=False,
             **kwargs,

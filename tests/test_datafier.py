@@ -1,14 +1,16 @@
-from pynimate.datafier import Datafier
+# Legacy tests for datafier, will be removed in 2.0.0
 import pandas as pd
 
+from pynimate.datafier import Datafier, BaseDatafier, BarDatafier
 
-def test_datafier_init(sample_bar_data1):
-    dfr = Datafier(sample_bar_data1, "%Y-%m-%d", "3MS", 0.1)
+
+def test_datafier_init(sample_data1):
+    dfr = Datafier(sample_data1, "%Y-%m-%d", "3MS", 0.1)
     assert dfr.n_bars == 5
 
 
-def test_datafier_interpolate_even(sample_bar_data2):
-    dfr = Datafier(sample_bar_data2, "%Y", "3MS")
+def test_datafier_interpolate_even(sample_data2):
+    dfr = Datafier(sample_data2, "%Y", "3MS")
     interpolated_data = pd.DataFrame(
         {
             "time": pd.to_datetime(
@@ -94,8 +96,8 @@ def test_datafier_get_bar_colors(map_data):
     assert dfr.get_bar_colors() == bar_colors
 
 
-def test_datafier_get_prepared_data(sample_bar_data1):
-    dfr = Datafier(sample_bar_data1, "%Y-%m-%d", "3MS")
+def test_datafier_get_prepared_data(sample_data1):
+    dfr = Datafier(sample_data1, "%Y-%m-%d", "3MS")
     dfr.df_ranks.index.name = "time"
     df_ranks = pd.DataFrame(
         {
@@ -143,3 +145,92 @@ def test_datafier_get_prepared_data(sample_bar_data1):
     ).set_index("time")
     assert dfr.df_ranks.equals(df_ranks)
     assert dfr.data.equals(data)
+
+
+def test_basedatafier_interpolate_even(sample_data2):
+    dfr = BaseDatafier(sample_data2, "%Y", "3MS")
+    interpolated_data = pd.DataFrame(
+        {
+            "time": pd.to_datetime(
+                [
+                    "2012-01-01",
+                    "2012-04-01",
+                    "2012-07-01",
+                    "2012-10-01",
+                    "2013-01-01",
+                    "2013-04-01",
+                    "2013-07-01",
+                    "2013-10-01",
+                    "2014-01-01",
+                ]
+            ),
+            "col1": [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0],
+            "col2": [3.0, 2.75, 2.5, 2.25, 2.0, 1.75, 1.5, 1.25, 1.0],
+        }
+    ).set_index("time")
+    dfr.data.index.name = "time"
+    assert dfr.data.equals(interpolated_data)
+
+
+def test_bardfr_init(sample_data1):
+    dfr = BarDatafier(sample_data1, "%Y-%m-%d", "3MS", 0.1)
+    assert dfr.n_bars == 5
+
+
+def test_bardfr_df_ranks(sample_data1):
+    dfr = BarDatafier(sample_data1, "%Y-%m-%d", "3MS", 0.5)
+    dfr.df_ranks.index.name = "time"
+    df_ranks = pd.DataFrame(
+        {
+            "time": pd.to_datetime(
+                [
+                    "1960-01-01",
+                    "1960-04-01",
+                    "1960-07-01",
+                    "1960-10-01",
+                    "1961-01-01",
+                    "1961-04-01",
+                    "1961-07-01",
+                    "1961-10-01",
+                    "1962-01-01",
+                ]
+            ),
+            "Afghanistan": [3.0, 2.5, 2.0, 2.0, 2.0, 1.5, 1.0, 1.0, 1.0],
+            "Angola": [4.0, 4.0, 4.0, 4.0, 4.0, 3.5, 3.0, 3.0, 3.0],
+            "Albania": [2.0, 1.5, 1.0, 1.0, 1.0, 3.0, 5.0, 5.0, 5.0],
+            "USA": [5.0, 4.0, 3.0, 3.0, 3.0, 2.5, 2.0, 2.0, 2.0],
+            "Argentina": [1.0, 3.0, 5.0, 5.0, 5.0, 4.5, 4.0, 4.0, 4.0],
+        }
+    ).set_index("time")
+    assert dfr.df_ranks.equals(df_ranks)
+
+
+def test_bardfr_get_top_cols(map_data):
+    dfr = BarDatafier(map_data, "%Y", "3MS")
+    top_cols = [
+        "Argentina",
+        "Australia",
+        "Brazil",
+        "Canada",
+        "China",
+        "Germany",
+        "Spain",
+        "France",
+        "United Kingdom",
+        "India",
+        "Iran",
+        "Israel",
+        "Italy",
+        "Japan",
+        "South Korea",
+        "Kuwait",
+        "Myanmar",
+        "Netherlands",
+        "Poland",
+        "Romania",
+        "Russian Federation",
+        "Saudi Arabia",
+        "Sweden",
+        "USA",
+    ]
+    assert dfr.get_top_cols() == top_cols

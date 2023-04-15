@@ -1,31 +1,23 @@
-import os
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-import matplotlib.ticker as tick
 import pandas as pd
 from matplotlib import pyplot as plt
 
 import pynimate as nim
-from pynimate.utils import human_readable
 
+df = pd.DataFrame(
+    {
+        "time": ["1960-01-01", "1961-01-01", "1962-01-01"],
+        "Afghanistan": [1, 2, 3],
+        "Angola": [2, 3, 4],
+        "Albania": [1, 2, 5],
+        "USA": [5, 3, 4],
+        "Argentina": [1, 4, 5],
+    }
+).set_index("time")
 
-def post(ax, *args):
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.xaxis.set_major_formatter(tick.FuncFormatter(human_readable))
-
-
-dfr = nim.Datafier()
 cnv = nim.Canvas()
-df = pd.read_csv(dir_path + "/data/map.csv").set_index("time")
-bar = nim.Barplot(df, "%Y", "MS", post_update=post, grid=False)
-bar.set_title("Top 10 Richest Person in the World (yearly)")
-bar.set_xlabel("Net Worth in Billion USD")
-bar.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
-bar.set_bar_annots(text_callback=human_readable)
+bar = nim.Barhplot.from_df(df, "%Y-%m-%d", "2d")
+bar.set_time(callback=lambda i, datafier: datafier.data.index[i].strftime("%b, %Y"))
 cnv.add_plot(bar)
 cnv.animate()
-cnv.save("example1", 24, "mp4")
+# cnv.save("example1", 24, "gif")
 plt.show()

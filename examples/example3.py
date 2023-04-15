@@ -1,38 +1,37 @@
 import os
 
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
 import pynimate as nim
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def post_update(ax, i, datafier, bar_attr):
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-    ax.spines["left"].set_visible(False)
-    ax.set_facecolor("#001219")
+mpl.rcParams["axes.facecolor"] = "#001219"
+for side in ["left", "right", "top", "bottom"]:
+    mpl.rcParams[f"axes.spines.{side}"] = False
 
+
+def post_update(self, i):
     # annotates continents next to bars
-    for bar, x, y in zip(
-        bar_attr.top_bars,
-        bar_attr.bar_length,
-        bar_attr.bar_rank,
+    for ind, (bar, x, y) in enumerate(
+        zip(self.bar_attr.top_cols, self.bar_attr.bar_length, self.bar_attr.bar_rank)
     ):
-        ax.text(
+        self.ax.text(
             x - 0.3,
             y,
-            datafier.col_var.loc[bar, "continent"],
+            self.dfr.col_var.loc[bar, "continent"],
             ha="right",
             color="k",
             size=12,
+            zorder=ind,
         )
 
 
 df = pd.read_csv(dir_path + "/data/sample.csv").set_index("time")
-col = pd.DataFrame(
+col_var = pd.DataFrame(
     {
         "columns": ["Afghanistan", "Angola", "Albania", "USA", "Argentina"],
         "continent": ["Asia", "Africa", "Europe", "N America", "S America"],
@@ -47,11 +46,13 @@ bar_cols = {
 }
 
 cnv = nim.Canvas(figsize=(12.8, 7.2), facecolor="#001219")
-bar = nim.Barplot(
-    df, "%Y-%m-%d", "3d", post_update=post_update, rounded_edges=True, grid=False
-)
-bar.add_var(col_var=col)
-bar.set_bar_color(bar_cols)
+
+dfr = nim.BarDatafier(df, "%Y-%m-%d", "3d")
+dfr.add_var(col_var=col_var)
+
+bar = nim.Barhplot(dfr, post_update=post_update, rounded_edges=True, grid=False)
+
+bar.set_column_colors(bar_cols)
 bar.set_title("Sample Title", color="w", weight=600)
 bar.set_xlabel("xlabel", color="w")
 bar.set_time(
@@ -74,4 +75,7 @@ bar.set_bar_border_props(
 cnv.add_plot(bar)
 cnv.animate()
 # plt.show()
-cnv.save("example3", 24, "mp4")
+cnv.save(
+    "example3",
+    24,
+)
