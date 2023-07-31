@@ -29,7 +29,10 @@ class Barplot:
         grid: bool = True,
         rounded_edges: bool = False,
     ) -> None:
-        """BarChartRace module that requires a valid time index.The data
+        """
+        Barplot is deprecated, use Barhplot instead
+
+        BarChartRace module that requires a valid time index.The data
         should be in this format where time is set to index
             ```
                 Example:

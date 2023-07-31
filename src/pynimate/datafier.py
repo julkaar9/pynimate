@@ -15,7 +15,10 @@ class Datafier:
         n_bars: int = 10,
         palettes: list[str] = ["viridis"],
     ) -> None:
-        """Contains data preparation modules, which includes interpolation, rank generation, color_generation.
+        """
+        Datafier is deprecated, use plot specific datafiers instead.
+
+        Contains data preparation modules, which includes interpolation, rank generation, color_generation.
         data should be in this format where time is set to index
         ```
             Example:
@@ -492,3 +495,38 @@ class BarDatafier(BaseDatafier):
         top_cols = self.df_ranks.max(axis=0)
         top_cols = top_cols[top_cols >= 1]
         return list(top_cols.index)
+
+
+class LineDatafier(BaseDatafier):
+    def __init__(
+        self, data, time_format: str, ip_freq: str, ip_method: str = "linear"
+    ) -> None:
+        """Contains data preparation modules, which includes interpolation.
+        data should be in this format where time is set to index
+        ```
+            Example:
+            >>> time  col1 col2 col3 ...
+            >>> 2012   1    0    2
+            >>> 2013   2    3    1
+        ```
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The data to be prepared, should be in this format where time is set to index
+        time_format : str
+            Index datetime format
+        ip_freq : str
+            Interpolation frequency
+        """
+        super().__init__(data, time_format, ip_freq, ip_method)
+        self.data = self.prepare_data()
+
+    def prepare_data(self) -> pd.DataFrame:
+        """Creates interpolated data
+
+        Returns
+        -------
+        pd.DataFrame
+            Interpolated data values
+        """
+        return self.interpolate_even(self.raw_data, self.ip_freq, self.ip_method)

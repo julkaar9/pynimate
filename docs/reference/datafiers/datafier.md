@@ -1,4 +1,5 @@
 # Datafier
+*Datafier is deprecated, use plot specific datafiers instead.*
 ## Datafier
 ::: pynimate.datafier.Datafier
     handler: python

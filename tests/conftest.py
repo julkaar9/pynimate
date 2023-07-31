@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import pytest
 
-from pynimate.datafier import BarDatafier, BaseDatafier
+from pynimate.datafier import BarDatafier, BaseDatafier, LineDatafier
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -41,6 +41,11 @@ def sample_data1_basedfr(sample_data1) -> BaseDatafier:
 @pytest.fixture
 def sample_data1_bardfr(sample_data1) -> BarDatafier:
     return BarDatafier(sample_data1, "%Y-%m-%d", "3MS")
+
+
+@pytest.fixture
+def sample_data1_linedfr(sample_data1) -> BarDatafier:
+    return LineDatafier(sample_data1, "%Y-%m-%d", "3MS")
 
 
 @pytest.fixture

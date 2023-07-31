@@ -42,19 +42,23 @@ theme:
     repo: fontawesome/brands/github
 
 nav:
-  - Home: index.md
-  - User Guide:
+  - Home:
+    - Home: index.md 
     - Getting started: guide/starter.md
-    - Dark Mode Example: guide/dark_mode.md
+  - User Guide:
+    - BarChart Dark Mode: guide/dark_mode.md 
+    - Lineplot Dark Mode: guide/lineplot_darkmode.md 
   - Api Reference:
     - Animators:
       - Canvas: reference/canvas.md
       - Baseplot: reference/baseplot.md
       - Barhplot: reference/barhplot.md
+      - Lineplot: reference/lineplot.md
       - Barplot: reference/barplot.md
     - Data Modifiers:
       - BaseDatafier: reference/datafiers/base_datafier.md
       - BarDatafier: reference/datafiers/bar_datafier.md
+      - LineDatafier: reference/datafiers/line_datafier.md
       - Datafier: reference/datafiers/datafier.md
     - Utils: reference/utils.md
 # Customization

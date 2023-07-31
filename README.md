@@ -10,6 +10,7 @@
 
 Python package for statistical data animations.
 ![](https://github.com/julkaar9/pynimate/blob/main/docs/assets/example3.gif)
+![](https://github.com/julkaar9/pynimate/blob/main/docs/assets/lineplot_dark2.gif)
 
 ## Installation
 ### with pip
