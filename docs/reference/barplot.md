@@ -1,4 +1,5 @@
 # Barplot
+*Barplot is deprecated, use barhplot instead.*
 ## Barplot
 ::: pynimate.bar.Barplot
     handler: python
