@@ -147,6 +147,9 @@ def test_datafier_get_prepared_data(sample_data1):
     assert dfr.data.equals(data)
 
 
+# 1.2.0 >=
+
+
 def test_basedatafier_interpolate_even(sample_data2):
     dfr = BaseDatafier(sample_data2, "%Y", "3MS")
     interpolated_data = pd.DataFrame(
