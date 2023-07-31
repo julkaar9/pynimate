@@ -10,7 +10,7 @@ class Canvas:
         self,
         nrows: int = 1,
         ncols: int = 1,
-        figsize: tuple[int, int] = (16, 9),
+        figsize: tuple[int, int] = (12.8, 7.2),
         post_update: Callable[[plt.Figure, list[list[plt.Axes]]], None] = None,
         **kwargs,
     ) -> None:
