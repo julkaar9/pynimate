@@ -7,7 +7,9 @@ Available Plots
 ---------------
 Barhplot
     Horizontal Bar Chart Race module
-    
+Lineplot
+    Module for Lineplot animations
+
 Barhplot Example
 ---------------
 
@@ -24,10 +26,11 @@ It is assumed `pynimate` is imported as `nim`.
 >>> cnv.save('sample', fps=24)
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 from .bar import Barplot
 from .barhplot import Barhplot
 from .baseplot import Baseplot
 from .canvas import Canvas
-from .datafier import BarDatafier, BaseDatafier, Datafier
+from .datafier import BarDatafier, BaseDatafier, Datafier, LineDatafier
+from .lineplot import Lineplot
