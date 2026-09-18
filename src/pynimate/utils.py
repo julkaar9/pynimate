@@ -1,6 +1,7 @@
 from typing import Union
 
 import numpy as np
+import pandas as pd
 
 
 def human_readable(num: Union[float, int], precision: int = 2, *args) -> str:
@@ -20,10 +21,18 @@ def human_readable(num: Union[float, int], precision: int = 2, *args) -> str:
     str
         Human readable numeric string
     """
-    if num == np.nan:
+    if pd.isna(num):
         return ""
+
     magnitude = 0
     while abs(num) >= 1000:
         magnitude += 1
         num /= 1000.0
+
     return f'{np.round(num, precision)}{["", "K", "M", "B", "T", "Q"][magnitude]}'
+
+
+def normalize_time_col(col: Union[any, str], fmt: str):
+    if isinstance(col, str):
+        return pd.to_datetime(col, format=fmt)
+    return col

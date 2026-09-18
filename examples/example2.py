@@ -37,5 +37,5 @@ bar.set_bar_annots(text_callback=human_readable)
 
 cnv.add_plot(bar)
 cnv.animate()
+cnv.save("example1", 24, "gif")
 plt.show()
-# cnv.save("example1", 24, "gif")

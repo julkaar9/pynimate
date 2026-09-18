@@ -134,7 +134,7 @@ class Datafier:
         Parameters
         ----------
         data : pd.DataFrame
-            Dataframe contaning the data
+            Dataframe containing the data
         freq : str
             Interpolation frequency
         method : str, optional
@@ -147,24 +147,24 @@ class Datafier:
         """
         ncols = data.select_dtypes("number").columns
         num_data = data[ncols]
-        if freq != None:
+        if freq is not None:
             new_ind = pd.date_range(
                 num_data.index.min(), num_data.index.max(), freq=freq
             )
-            new_ser = pd.Series(
+            new_series = pd.Series(
                 [0] * len(new_ind), index=new_ind, name="new_ind"
             ).to_frame()
             num_data = (
-                new_ser.join(num_data, how="outer").drop("new_ind", axis=1).sort_index()
+                new_series.join(num_data, how="outer")
+                .drop("new_ind", axis=1)
+                .sort_index()
             )
         num_data = num_data.interpolate(method=method)
         data = data[data.select_dtypes(exclude="number").columns].join(
             num_data, how="right"
         )
         data[data.select_dtypes(exclude="number").columns] = (
-            data[data.select_dtypes(exclude="number").columns]
-            .fillna(method="bfill")
-            .fillna(method="ffill")
+            data[data.select_dtypes(exclude="number").columns].bfill().ffill()
         )
         return data
 
@@ -212,9 +212,7 @@ class Datafier:
             # no of nans in each interval
             w = z / (y - 1)
             if w * ip_frac > 0:
-                df_ranks = df_ranks.interpolate(
-                    method="bfill", limit=int(np.ceil(w * ip_frac))
-                )
+                df_ranks = df_ranks.bfill(limit=int(np.ceil(w * ip_frac)))
         df_ranks = df_ranks.interpolate()
         return (data, df_ranks)
 
@@ -261,12 +259,12 @@ class BaseDatafier:
     ) -> None:
         """Contains data preparation modules, which includes interpolation.
         data should be in this format where time is set to index
-        ```
-            Example:
-            >>> time  col1 col2 col3 ...
-            >>> 2012   1    0    2
-            >>> 2013   2    3    1
-        ```
+        Example:
+            ```
+            time  col1 col2 col3 ...
+            2012   1    0    2
+            2013   2    3    1
+            ```
         Parameters
         ----------
         data : pd.DataFrame
@@ -279,10 +277,23 @@ class BaseDatafier:
         self.raw_data = data
         self.ip_freq = ip_freq
         self.ip_method = ip_method
+
         self.colorable_columns = self.raw_data.columns
         self.raw_data.index = pd.to_datetime(self.raw_data.index, format=time_format)
-        self.expanded = self.data = self.raw_data
-        self.data = self.interpolate_data()
+
+        self.data, self.expanded = self.interpolate_data(data, ip_freq, ip_method)
+
+    def interpolate_data(
+        self, data: pd.DataFrame, ip_freq: str, ip_method: str
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Interpolates the raw data
+
+        Returns
+        -------
+        pd.DataFrame
+            Interpolated data
+        """
+        return self.interpolate_even(data, ip_freq, ip_method)
 
     def add_var(self, row_var: pd.DataFrame = None, col_var: pd.DataFrame = None):
         """Adds additional variables to the data, both row and column wise.\n
@@ -307,12 +318,53 @@ class BaseDatafier:
         col_var : pd.DataFrame, optional
             Dataframe containing variables related to columns, by default None
         """
-        self.row_var = self.interpolate_even(row_var, self.ip_freq) if row_var else None
+        self.row_var, _ = (
+            self.interpolate_even(row_var, self.ip_freq)
+            if row_var is not None
+            else (None, None)
+        )
+
         self.col_var = col_var
+
+    # def interpolate_even(
+    #     self, data: pd.DataFrame, freq: str, method: str = "linear"
+    # ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    #     """Interpolates the given dataframe according to the frequency
+
+    #     Parameters
+    #     ----------
+    #     data : pd.DataFrame
+    #         Dataframe containing the data
+    #     freq : str
+    #         Interpolation frequency
+    #     method : str, optional
+    #         Interpolation method, by default "linear"
+
+    #     Returns
+    #     -------
+    #     pd.DataFrame
+    #         Interpolated dataframe
+    #     """
+    #     assert freq is not None, "'freq' cannot be 'None'"
+    #     ncols = data.select_dtypes("number").columns
+    #     num_data = data[ncols]
+
+    #     new_ind = pd.date_range(num_data.index.min(), num_data.index.max(), freq=freq)
+    #     new_ser = pd.Series(
+    #         [0] * len(new_ind), index=new_ind, name="new_ind"
+    #     ).to_frame()
+    #     num_data = (
+    #         new_ser.join(num_data, how="outer").drop("new_ind", axis=1).sort_index()
+    #     )
+    #     expanded = new_ser.join(data, how="outer").drop("new_ind", axis=1).sort_index()
+    #     num_data = num_data.interpolate(method=method)
+    #     obCols = data.select_dtypes(exclude="number").columns
+    #     data = data[obCols].join(num_data, how="right").bfill().ffill()
+    #     return data, expanded
 
     def interpolate_even(
         self, data: pd.DataFrame, freq: str, method: str = "linear"
-    ) -> pd.DataFrame:
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Interpolates the given dataframe according to the frequency
 
         Parameters
@@ -326,41 +378,21 @@ class BaseDatafier:
 
         Returns
         -------
-        pd.DataFrame
-            Interpolated dataframe
+        tuple[pd.DataFrame, pd.DataFrame]
+            Interpolated dataframe and Preinterpolated skeleton dataframe
         """
-        ncols = data.select_dtypes("number").columns
-        num_data = data[ncols]
-        if freq != None:
-            new_ind = pd.date_range(
-                num_data.index.min(), num_data.index.max(), freq=freq
-            )
-            new_ser = pd.Series(
-                [0] * len(new_ind), index=new_ind, name="new_ind"
-            ).to_frame()
-            num_data = (
-                new_ser.join(num_data, how="outer").drop("new_ind", axis=1).sort_index()
-            )
-            self.expanded = (
-                new_ser.join(self.expanded, how="outer")
-                .drop("new_ind", axis=1)
-                .sort_index()
-            )
-        num_data = num_data.interpolate(method=method)
-        obCols = data.select_dtypes(exclude="number").columns
-        data = data[obCols].join(num_data, how="right")
-        data[obCols] = data[obCols].fillna(method="bfill").fillna(method="ffill")
-        return data
+        assert freq is not None, "'freq' cannot be 'None'"
+        new_index = pd.DataFrame(
+            index=pd.date_range(data.index.min(), data.index.max(), freq=freq)
+        )
+        expanded = new_index.join(data, how="outer").sort_index()
 
-    def interpolate_data(self) -> pd.DataFrame:
-        """Interpolates the raw data
+        numeric = expanded.select_dtypes(include="number").interpolate(method=method)
+        non_numeric = expanded.select_dtypes(exclude="number")
 
-        Returns
-        -------
-        pd.DataFrame
-            Interpolated data
-        """
-        return self.interpolate_even(self.data, self.ip_freq)
+        interpolated = non_numeric.join(numeric).bfill().ffill()
+
+        return interpolated, expanded
 
 
 class BarDatafier(BaseDatafier):
@@ -375,14 +407,14 @@ class BarDatafier(BaseDatafier):
         ip_fill_method="bfill",
     ) -> None:
         """Contains data preparation modules, which includes interpolation, rank generation.
-        data should be in this format where time is set to index
-        ```
-            Example:
-            >>> time  col1 col2 col3 ...
-            >>> 2012   1    0    2
-            >>> 2013   2    3    1
-        ```
+        data should be in this format where time is set to index.
 
+        Example:
+            ```
+            time  col1 col2 col3 ...
+            2012   1    0    2
+            2013   2    3    1
+            ```
         Parameters
         ----------
         data : pd.DataFrame
@@ -392,20 +424,21 @@ class BarDatafier(BaseDatafier):
         ip_freq : str
             Interpolation frequency
         ip_frac : float, optional
-            Rank interpolation fraction (check end of docstring), by default 0.5
+            Rank interpolation fraction (check end of docstring), by default `0.5`
         n_bars : int, optional
-            Number of bars to be visible on the plot, by default 10 or less
+            Number of bars to be visible on the plot, by default `10` or less
         ip_method : str, optional
             Interpolation Method, by default "linear"
         ip_fill_method : str, optional
             fill method for ip_frac, by default "bfill"
 
 
+        More on ip_frac
+        -------------------
         ip_frac is the percentage of NaN values to be linearly
         interpolated for column ranks
 
-        ```
-
+        ```text
             Consider this example
             >>>               a    b
             >>> date
@@ -436,20 +469,29 @@ class BarDatafier(BaseDatafier):
         self.ip_frac = ip_frac
         self.ip_fill_method = ip_fill_method
         self.n_bars = min(n_bars, len(self.raw_data.columns))
-        self.df_ranks = self.get_data_ranks(self.ip_frac)
-        self.top_cols = self.colorable_columns = self.get_top_cols()
 
-    def interpolate_data(self) -> pd.DataFrame:
-        self.data = self.data.replace(np.nan, 0)
-        return super().interpolate_data()
+        self.df_ranks = self.get_data_ranks(ip_frac, ip_fill_method)
+        self.top_cols = self.colorable_columns = self.get_top_cols(self.df_ranks)
 
-    def get_data_ranks(self, ip_frac: float = 0.1) -> pd.DataFrame:
+    def interpolate_data(
+        self, data: pd.DataFrame, ip_freq: str, ip_method: str
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+
+        data = data.copy().replace(np.nan, 0)
+        return super().interpolate_data(data, ip_freq, ip_method)
+
+    def get_data_ranks(
+        self, ip_frac: float = 0.1, ip_fill_method: str = "bfill"
+    ) -> pd.DataFrame:
         """Creates column ranks and interpolates them.
 
         Parameters
         ----------
         ip_frac : float, optional
-            pct of NaNs to interpolate by 'self.method' rest will be backfilled, by default 0.1
+            pct of NaNs to interpolate by `self.method` rest will be backfilled, by default `0.1`
+
+        ip_fill_method : str, optional
+            fill method for ip_frac, by default "bfill"
 
         Returns
         -------
@@ -478,21 +520,28 @@ class BarDatafier(BaseDatafier):
             # no of nans in each interval
             w = z / (y - 1)
             if w * ip_frac > 0:
-                df_ranks = df_ranks.interpolate(
-                    method=self.ip_fill_method, limit=int(np.ceil(w * ip_frac))
-                )
+                if ip_fill_method == "bfill":
+                    df_ranks = df_ranks.bfill(limit=int(np.ceil(w * ip_frac)))
+                elif ip_fill_method == "ffill":
+                    df_ranks = df_ranks.ffill(limit=int(np.ceil(w * ip_frac)))
+
         df_ranks = df_ranks.interpolate()
         return df_ranks
 
-    def get_top_cols(self) -> list[str]:
-        """Selects columns where column_rank < n_bars in any timestamp
+    def get_top_cols(self, df_ranks: pd.DataFrame) -> list[str]:
+        """Selects columns where column_rank `< n_bars` in any timestamp
+
+        Parameters
+        ----------
+        df_ranks : pd.DataFrame
+            Interpolated column ranks
 
         Returns
         -------
         list[str]
             List of columns that will appear in the animation at least once
         """
-        top_cols = self.df_ranks.max(axis=0)
+        top_cols = df_ranks.max(axis=0)
         top_cols = top_cols[top_cols >= 1]
         return list(top_cols.index)
 
@@ -502,13 +551,14 @@ class LineDatafier(BaseDatafier):
         self, data, time_format: str, ip_freq: str, ip_method: str = "linear"
     ) -> None:
         """Contains data preparation modules, which includes interpolation.
-        data should be in this format where time is set to index
-        ```
-            Example:
-            >>> time  col1 col2 col3 ...
-            >>> 2012   1    0    2
-            >>> 2013   2    3    1
-        ```
+        data should be in this format where time is set to index.
+
+        Example:
+            ```text
+            time  col1 col2 col3 ...
+            2012   1    0    2
+            2013   2    3    1
+            ```
         Parameters
         ----------
         data : pd.DataFrame
@@ -519,14 +569,15 @@ class LineDatafier(BaseDatafier):
             Interpolation frequency
         """
         super().__init__(data, time_format, ip_freq, ip_method)
-        self.data = self.prepare_data()
 
-    def prepare_data(self) -> pd.DataFrame:
-        """Creates interpolated data
+    #     self.data = self.prepare_data()
 
-        Returns
-        -------
-        pd.DataFrame
-            Interpolated data values
-        """
-        return self.interpolate_even(self.raw_data, self.ip_freq, self.ip_method)
+    # def prepare_data(self) -> pd.DataFrame:
+    #     """Creates interpolated data
+
+    #     Returns
+    #     -------
+    #     pd.DataFrame
+    #         Interpolated data values
+    #     """
+    #     return self.interpolate_even(self.raw_data, self.ip_freq, self.ip_method)

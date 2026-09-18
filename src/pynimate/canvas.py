@@ -29,6 +29,7 @@ class Canvas:
             callback function for additional figure customization, by default None
 
         post_update args:
+        ----------------
         ```
             plt.Figure: Matplotlib figure
             list[list[plt.Axes]]]: Subplot Axes
@@ -64,9 +65,9 @@ class Canvas:
         self.plots.append(plot)
         return self
 
-    # def _init(self) -> None:
-    #     for plot in self.plots:
-    #         plot.init()
+    def _init(self) -> None:
+        for plot in self.plots:
+            plot.init()
 
     def _update(self, i: int) -> None:
         self.post_update(self.fig, self.ax)
@@ -92,6 +93,7 @@ class Canvas:
         self.ani = animation.FuncAnimation(
             self.fig,
             self._update,
+            init_func=self._init,
             frames=frames_callback(self.length),
             interval=interval,
             blit=False,
