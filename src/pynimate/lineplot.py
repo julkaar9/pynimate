@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Callable, Self, Union
 
 import matplotlib.dates as mdates
 import pandas as pd
@@ -13,7 +13,7 @@ class Lineplot(Baseplot):
         self,
         datafier: LineDatafier,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         line_annots: bool = True,
         legend: bool = True,
         scatter_markers: bool = True,
@@ -26,39 +26,53 @@ class Lineplot(Baseplot):
     ) -> None:
         """Lineplot animation module that requires a valid time index.The data
         should be in this format where time is set to index
-            ```
-                Example:
-                >>> time  col1 col2 col3 ...
-                >>> 2012   1    0    2
-                >>> 2013   2    3    1
-            ```
+
+        Example:
+        ```text
+            time  col1 col2 col3 ...
+            2012   1    0    2
+            2013   2    3    1
+        ```
 
         Parameters
         ----------
         datafier : LineDatafier
             The datafier instance
         palettes : list[str], optional
-            List of color palettes to generate line / marker colors, by default ["viridis"]
-        post_update : Callable[[__qualname__, int], None], optional
-            callback function for additional customization, by default lambda self, i: None
+            List of color palettes to generate line / marker colors, by default `["viridis"]`
+        post_update : Callable[[Self, int], None], optional
+            callback function for additional customization, by default `lambda self, i: None`
         line_annots : bool, optional
-            Sets line annotations leading the lines, by default True
+            Sets line annotations leading the lines, by default `True`
         legend : bool, optional
             Sets plot legend, by default True
         scatter_markers : bool, optional
-            Enables line markers / Scatterplot, by default True
+            Enables line markers / Scatterplot, by default `True`
         line_head : bool, optional
-            Enables markers leading every line, by default True
+            Enables markers leading every line, by default `True`
         fixed_xlim : bool, optional
-            If False xlim will gradually change in every frame, by default True
+            If False xlim will gradually change in every frame, by default `True`
         fixed_ylim : bool, optional
-            If False ylim will gradually change in every frame, by default False
+            If False ylim will gradually change in every frame, by default `False`
         xticks : bool, optional
-            Sets xticks, by default True
+            Sets xticks, by default `True`
         yticks : bool, optional
-            Sets yticks, by default True
+            Sets yticks, by default `True`
         grid : bool, optional
-            Sets xgrid, by default True
+            Sets xgrid, by default `True`
+
+        post_update args
+        ----------------
+        - ``self`` : Lineplot instance
+        - ``i`` : Current frame index
+
+        example:
+        ```python
+        def post_update(self, i):
+            # sets log scale for x-axis
+            self.ax.set_xscale("log")
+        ```
+
         """
         super().__init__(
             datafier,
@@ -88,7 +102,7 @@ class Lineplot(Baseplot):
         time_format: str,
         ip_freq: str,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         line_annots: bool = True,
         legend: bool = True,
         scatter_markers: bool = True,
@@ -114,7 +128,7 @@ class Lineplot(Baseplot):
             grid,
         )
 
-    def set_xylim(self, xlim: list[float] = [], ylim: list[float] = []):
+    def set_xylim(self, xlim: list[float] = None, ylim: list[float] = None):
         """Sets xlim and ylim
 
         Parameters
@@ -125,12 +139,12 @@ class Lineplot(Baseplot):
             y axis limits in this format [min, max], by default [min y val, max y val]
         """
         super().set_xylim(xlim, ylim)
-        if xlim == []:
+        if xlim is None:
             self.max_date = self.datafier.data.index.max()
             self.min_date = self.datafier.data.index.min()
             xlim = [self.min_date, self.max_date]
         self.xlim = xlim
-        if ylim == []:
+        if ylim is None:
             self.total_max = self.datafier.data.max().max()
             self.total_min = self.datafier.data.min().min()
             ylim = [self.total_min, self.total_max]
@@ -181,7 +195,7 @@ class Lineplot(Baseplot):
         self.line_annot_props = {"callback": callback, "kwargs": kwargs}
 
     def set_line_head(self, edgecolors: Union[str, list[str]] = "k", **kwargs) -> None:
-        """Sets the line head(leading marker) properites, additional kwargs are passed to `ax.scatter(**kwargs)`
+        """Sets the line head(leading marker) properties, additional kwargs are passed to `ax.scatter(**kwargs)`
 
         Parameters
         ----------
@@ -202,10 +216,11 @@ class Lineplot(Baseplot):
         self.ax.clear()
         for col in self.dfr.data.columns:
             self.X, self.Y = self.dfr.data.index, self.dfr.data[col]
+
             self.Y_og = self.dfr.expanded[col]
             self.ax.plot(
                 self.X[: i + 1],
-                self.Y[: i + 1],
+                self.Y.iloc[: i + 1],
                 color=self.column_colors[col],
                 linestyle=self.column_linestyles[col],
                 label=col,
@@ -214,15 +229,15 @@ class Lineplot(Baseplot):
             if self.scatter_markers:
                 self.ax.scatter(
                     self.X[:i],
-                    self.Y_og[:i],
+                    self.Y_og.iloc[:i],
                     color=self.column_colors[col],
                     **self.marker_props,
                 )
 
             if self.line_annots:
                 self.annot = self.ax.annotate(
-                    self.line_annot_props["callback"](col, self.Y[i]),
-                    (mdates.date2num(self.X[i]), self.Y[i]),
+                    self.line_annot_props["callback"](col, self.Y.iloc[i]),
+                    (mdates.date2num(self.X[i]), self.Y.iloc[i]),
                     **self.line_annot_props["kwargs"],
                 )
 
@@ -232,7 +247,7 @@ class Lineplot(Baseplot):
             if self.line_head:
                 self.ax.scatter(
                     self.X[i : i + 1],
-                    self.Y[i : i + 1],
+                    self.Y.iloc[i : i + 1],
                     color=self.column_colors[col],
                     **self.line_head_props,
                 )

@@ -1,15 +1,14 @@
-# Legacy tests for datafier, will be removed in 2.0.0
 import pandas as pd
 
 from pynimate.datafier import Datafier, BaseDatafier, BarDatafier
 
 
-def test_datafier_init(sample_data1):
+def test_datafier_init(sample_data1: pd.DataFrame):
     dfr = Datafier(sample_data1, "%Y-%m-%d", "3MS", 0.1)
     assert dfr.n_bars == 5
 
 
-def test_datafier_interpolate_even(sample_data2):
+def test_datafier_interpolate_even(sample_data2: pd.DataFrame):
     dfr = Datafier(sample_data2, "%Y", "3MS")
     interpolated_data = pd.DataFrame(
         {
@@ -34,7 +33,7 @@ def test_datafier_interpolate_even(sample_data2):
     assert dfr.data.equals(interpolated_data)
 
 
-def test_datafier_get_top_cols(map_data):
+def test_datafier_get_top_cols(map_data: pd.DataFrame):
     dfr = Datafier(map_data, "%Y", "3MS")
     top_cols = [
         "Argentina",
@@ -65,7 +64,7 @@ def test_datafier_get_top_cols(map_data):
     assert dfr.get_top_cols() == top_cols
 
 
-def test_datafier_get_bar_colors(map_data):
+def test_datafier_get_bar_colors(map_data: pd.DataFrame):
     dfr = Datafier(map_data, "%Y", "3MS")
     bar_colors = {
         "Argentina": (0.278791, 0.062145, 0.386592),
@@ -96,7 +95,7 @@ def test_datafier_get_bar_colors(map_data):
     assert dfr.get_bar_colors() == bar_colors
 
 
-def test_datafier_get_prepared_data(sample_data1):
+def test_datafier_get_prepared_data(sample_data1: pd.DataFrame):
     dfr = Datafier(sample_data1, "%Y-%m-%d", "3MS")
     dfr.df_ranks.index.name = "time"
     df_ranks = pd.DataFrame(
@@ -147,10 +146,7 @@ def test_datafier_get_prepared_data(sample_data1):
     assert dfr.data.equals(data)
 
 
-# 1.2.0 >=
-
-
-def test_basedatafier_interpolate_even(sample_data2):
+def test_basedatafier_interpolate_even(sample_data2: pd.DataFrame):
     dfr = BaseDatafier(sample_data2, "%Y", "3MS")
     interpolated_data = pd.DataFrame(
         {
@@ -175,12 +171,12 @@ def test_basedatafier_interpolate_even(sample_data2):
     assert dfr.data.equals(interpolated_data)
 
 
-def test_bardfr_init(sample_data1):
+def test_bardfr_init(sample_data1: pd.DataFrame):
     dfr = BarDatafier(sample_data1, "%Y-%m-%d", "3MS", 0.1)
     assert dfr.n_bars == 5
 
 
-def test_bardfr_df_ranks(sample_data1):
+def test_bardfr_df_ranks(sample_data1: pd.DataFrame):
     dfr = BarDatafier(sample_data1, "%Y-%m-%d", "3MS", 0.5)
     dfr.df_ranks.index.name = "time"
     df_ranks = pd.DataFrame(
@@ -208,7 +204,7 @@ def test_bardfr_df_ranks(sample_data1):
     assert dfr.df_ranks.equals(df_ranks)
 
 
-def test_bardfr_get_top_cols(map_data):
+def test_bardfr_get_top_cols(map_data: pd.DataFrame):
     dfr = BarDatafier(map_data, "%Y", "3MS")
     top_cols = [
         "Argentina",
@@ -236,4 +232,50 @@ def test_bardfr_get_top_cols(map_data):
         "Sweden",
         "USA",
     ]
-    assert dfr.get_top_cols() == top_cols
+    assert dfr.get_top_cols(dfr.df_ranks) == top_cols
+
+
+# Regression test BaseDatafier
+
+
+def test_add_var_none(sample_data1: pd.DataFrame):
+    dfr = BaseDatafier(sample_data1, "%Y-%m-%d", "6MS")
+
+    dfr.add_var(row_var=None, col_var=None)
+
+    assert dfr.row_var is None
+    assert dfr.col_var is None
+
+
+def test_add_var_row(sample_data1: pd.DataFrame):
+    dfr = BaseDatafier(sample_data1, "%Y-%m-%d", "6MS")
+    row_var = pd.DataFrame(
+        {"events": ["yes", "no", "no"]},
+        index=sample_data1.index,
+    )
+    dfr.add_var(row_var=row_var)
+    expected = pd.DataFrame(
+        {
+            "events": ["yes", "no", "no", "no", "no"],
+        },
+        index=[
+            pd.Timestamp("1960-01-01"),
+            pd.Timestamp("1960-07-01"),
+            pd.Timestamp("1961-01-01"),
+            pd.Timestamp("1961-07-01"),
+            pd.Timestamp("1962-01-01"),
+        ],
+    )
+    assert dfr.row_var is not None
+    pd.testing.assert_frame_equal(dfr.row_var, expected)
+
+
+def test_add_var_col(sample_data1):
+    dfr = BaseDatafier(sample_data1, "%Y-%m-%d", "6MS")
+    col_var = pd.DataFrame(
+        {"continent": ["Asia", "Africa", "Europe", "North America", "South America"]},
+        index=sample_data1.columns,
+    )
+    dfr.add_var(col_var=col_var)
+
+    pd.testing.assert_frame_equal(dfr.col_var, col_var)

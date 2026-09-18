@@ -221,7 +221,7 @@ class Barplot:
         ylim : list[float], optional
             y axis limits in this format [min, max], by default [0.5, n_bars + 0.6]
         """
-        if xlim != None:
+        if xlim is not None:
             assert (
                 len(xlim) == 2 or len(xlim) == 0
             ), "xlim is incorrect (correct format - [minLim, maxLim])"
@@ -229,7 +229,7 @@ class Barplot:
         # if hasattr(self, "fig"):
         #     plt.close(self.fig)
 
-        if xlim != None:
+        if xlim is not None:
             if xlim == []:
                 self.total_max = self.datafier.data.max().max()
                 xlim = [None, self.total_max + 5]
@@ -512,7 +512,7 @@ class Barplot:
                 boxstyle=f"round,pad={border['pad']}"
                 + (
                     f",rounding_size={border['radius']}"
-                    if border["radius"] != None
+                    if border["radius"] is not None
                     else ""
                 ),
                 ec=border["edge_color"],

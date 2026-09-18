@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Callable, Self, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,27 +13,28 @@ class Baseplot:
         self,
         datafier: BaseDatafier,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
-        fixed_xlim=True,
-        fixed_ylim=True,
-        xticks=True,
-        yticks=True,
-        grid=True,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
+        fixed_xlim: bool = True,
+        fixed_ylim: bool = True,
+        xticks: bool = True,
+        yticks: bool = True,
+        grid: bool = True,
+        set_frame_on: bool = True,
     ) -> None:
         """General Chart animation module that requires a valid time index.The data
         should be in this format where time is set to index
+        Example:
             ```
-                Example:
-                >>> time  col1 col2 col3 ...
-                >>> 2012   1    0    2
-                >>> 2013   2    3    1
+            time  col1 col2 col3 ...
+            2012   1    0    2
+            2013   2    3    1
             ```
         Parameters
         ----------
         datafier : BaseDatafier
             The datafier instance
         palettes : list[str], optional
-            List of color palettes to generate bar colors, by default ["viridis"]
+            List of color palettes to generate column colors, by default ["viridis"]
         post_update : Callable[[Baseplot, i], None], optional
             callback function for additional customization, by default lambda self, i: None
         fixed_xlim : bool, optional
@@ -45,18 +46,20 @@ class Baseplot:
         yticks : bool, optional
             Sets yticks, by default True
         grid : bool, optional
-             Sets xgrid, by default True
+            Sets xgrid, by default True
+        set_frame_on : bool, optional
+            Set whether the Axes rectangle patch is drawn., by default True
 
         post_update args
-        ```
+        -----------------
             self: Baseplot instance
             i: Frame index
 
-        example:
-
-        >>> def post_update(self, i):
-        >>>     # sets log scale for x-axis
-        >>>     self.ax.set_xscale("log")
+        Example:
+        ```python
+        def post_update(self, i):
+            # sets log scale for x-axis
+        self.ax.set_xscale("log")
 
         ```
         """
@@ -68,16 +71,39 @@ class Baseplot:
         self.palettes = palettes
         self.column_colors = self.generate_column_colors()
 
-        self.text_collection = {}
+        self.set_xylim()
+        self._setup_plot(
+            post_update, fixed_xlim, fixed_ylim, xticks, yticks, grid, set_frame_on
+        )
+
+    def _setup_plot(
+        self,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
+        fixed_xlim: bool = True,
+        fixed_ylim: bool = True,
+        xticks: bool = True,
+        yticks: bool = True,
+        grid: bool = True,
+        set_frame_on: bool = True,
+    ):
         self.post_update = post_update
+        self.text_collection: dict[
+            str, Union[str, Callable[[int, BaseDatafier], str]]
+        ] = {}
         self.fixed_xlim = fixed_xlim
         self.fixed_ylim = fixed_ylim
         self.xticks = xticks
         self.yticks = yticks
         self.grid = grid
-        self.set_xylim()
-        self.set_xticks()
-        self.set_yticks()
+        self.set_frame_on = set_frame_on
+        if not xticks:
+            self.set_xticks(bottom=False, labelbottom=False)
+        else:
+            self.set_xticks()
+        if not yticks:
+            self.set_yticks(left=False, labelleft=False)
+        else:
+            self.set_yticks()
         self.set_grid()
 
     @classmethod
@@ -87,12 +113,13 @@ class Baseplot:
         time_format: str,
         ip_freq: str,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         fixed_xlim=True,
         fixed_ylim=True,
         xticks=True,
         yticks=True,
         grid=True,
+        set_frame_on: bool = True,
     ):
         return cls(
             BaseDatafier(data, time_format, ip_freq),
@@ -103,6 +130,7 @@ class Baseplot:
             xticks,
             yticks,
             grid,
+            set_frame_on,
         )
 
     def generate_column_colors(self) -> dict[str, str]:
@@ -206,7 +234,7 @@ class Baseplot:
     #     else:
     #         raise TypeError("colors must be str, list or dict")
 
-    def set_xylim(self, xlim: list[float] = [], ylim: list[float] = []):
+    def set_xylim(self, xlim: list[float] = None, ylim: list[float] = None):
         """Sets xlim and ylim
 
         Parameters
@@ -218,18 +246,18 @@ class Baseplot:
         """
 
         assert (
-            len(xlim) == 2 or len(xlim) == 0
+            xlim is None or len(xlim) == 2
         ), "xlim is incorrect (correct format - [minLim, maxLim])"
         assert (
-            len(ylim) == 2 or len(ylim) == 0
+            ylim is None or len(ylim) == 2
         ), "ylim is incorrect (correct format - [minLim, maxLim])"
 
-        if xlim == []:
+        if xlim is None:
             self.max_date = self.datafier.data.index.max()
             xlim = [None, self.max_date]
         self.xlim = xlim
 
-        if ylim == []:
+        if ylim is None:
             self.total_max = self.datafier.data.max().max()
             ylim = [None, self.total_max]
         self.ylim = ylim
@@ -353,11 +381,11 @@ class Baseplot:
             text color, by default "#777777"
 
         callback args:
-        ```
-            i: Animation frame / data row index
-            datafier: The datafier instance,
+        --------
+            `i`: Animation frame / data row index
+            `datafier`: The datafier instance,
                 access the data using datafier.data
-        ```
+
         """
         self.text_collection["time"] = (
             callback,
@@ -406,14 +434,16 @@ class Baseplot:
             Text color, by default "#777777"
 
         Callback args:
-        ```
-            args:
-            i: Animation frame / data row index
-            datafier: The datafier instance
+        -----------------
+        args:
+        `i`: Animation frame / data row index
+        `datafier`: The datafier instance
 
-            Example:
-            >>> lambda i, datafier: datafier.data.index[i]
+        Example:
+        ```python
+        lambda i, datafier: datafier.data.index[i]
         ```
+
         """
         assert text or callback, "Both text and callback cannot be None"
         self.text_collection[key] = (
@@ -518,20 +548,23 @@ class Baseplot:
             **kwargs,
         }
 
+    def init(self): ...
+
     def update(self, i):
         if self.fixed_xlim:
             self.ax.set_xlim(self.xlim)
         if self.fixed_ylim:
             self.ax.set_ylim(self.ylim)
 
-        if self.xticks:
-            self.ax.tick_params(**self.xtick_props)
-        if self.yticks:
-            self.ax.tick_params(**self.ytick_props)
+        # if self.xticks:
+        self.ax.tick_params(**self.xtick_props)
+        # if self.yticks:
+        self.ax.tick_params(**self.ytick_props)
 
         if self.grid:
             self.ax.grid(**self.grid_props)
 
+        self.ax.set_frame_on(self.set_frame_on)
         self.ax.set_axisbelow(self.grid_behind)
 
         self.post_update(self, i)

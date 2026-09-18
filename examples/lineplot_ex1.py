@@ -22,7 +22,6 @@ plot = nim.Lineplot.from_df(
 plot.set_time(callback=lambda i, datafier: datafier.data.index[i].year)
 plot.set_column_linestyles({"Albania": "dashed"})
 cnv.add_plot(plot)
-print(plot.column_linestyles)
 cnv.animate()
-# cnv.save("tt", 24)
+cnv.save("tt", 24)
 plt.show()

@@ -1,9 +1,12 @@
 import os
 
+import geopandas as gpd
 import pandas as pd
 import pytest
+from shapely import Point
 
 from pynimate.datafier import BarDatafier, BaseDatafier, LineDatafier
+from pynimate.geodatafier import GeoDatafier
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -52,3 +55,20 @@ def sample_data1_linedfr(sample_data1) -> BarDatafier:
 def map_data() -> pd.DataFrame:
     map_data = pd.read_csv(dir_path + "/data/map.csv").set_index("time")
     return map_data
+
+
+@pytest.fixture
+def sample_geodfr():
+    return GeoDatafier(
+        gpd.GeoDataFrame(
+            {
+                "name": ["A", "B"],
+                "2020-01-01": [0, 100],
+                "2020-01-03": [20, 160],
+                "geometry": [Point(0, 0), Point(1, 1)],
+            },
+            geometry="geometry",
+        ),
+        time_format="%Y-%m-%d",
+        ip_freq="D",
+    )

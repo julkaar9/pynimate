@@ -11,14 +11,20 @@
 Python package for statistical data animations.
 ![](https://github.com/julkaar9/pynimate/blob/main/docs/assets/example3.gif)
 ![](https://github.com/julkaar9/pynimate/blob/main/docs/assets/lineplot_dark2.gif)
+![](https://github.com/julkaar9/pynimate/blob/main/docs/assets/district_rainfall.gif)
 
 ## Installation
 ### with pip
-Pynimate is avaialbe at [pypi](https://pypi.org/project/pynimate/)
+Pynimate is available at [pypi](https://pypi.org/project/pynimate/)
 ``` sh
 pip install pynimate
 ```
+### Geospatial features
 
+The Choropleth and Geodatafier classes require `GeoPandas`. Install pynimate with the geo extra:
+``` sh
+pip install "pynimate[geo]"
+```
 ## How to use
 Pynimate expects pandas dataframe formatted in this manner:  
 Where the time column is set to index.

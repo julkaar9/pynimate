@@ -10,7 +10,7 @@ repo_name: julkaar9/pynimate
 repo_url: https://github.com/julkaar9/pynimate
 
 # Copyright
-copyright: Copyright &copy; 2023 Md Julkarnaeen
+copyright: Copyright &copy; 2026 Md Julkarnaeen
 
 theme:
   name: material
@@ -48,17 +48,20 @@ nav:
   - User Guide:
     - BarChart Dark Mode: guide/dark_mode.md 
     - Lineplot Dark Mode: guide/lineplot_darkmode.md 
+    - Choropleth: guide/population_choropleth.md
   - Api Reference:
     - Animators:
       - Canvas: reference/canvas.md
       - Baseplot: reference/baseplot.md
       - Barhplot: reference/barhplot.md
       - Lineplot: reference/lineplot.md
+      - Choropleth: reference/choropleth.md
       - Barplot: reference/barplot.md
     - Data Modifiers:
       - BaseDatafier: reference/datafiers/base_datafier.md
       - BarDatafier: reference/datafiers/bar_datafier.md
       - LineDatafier: reference/datafiers/line_datafier.md
+      - GeoDatafier: reference/datafiers/geo_datafier.md
       - Datafier: reference/datafiers/datafier.md
     - Utils: reference/utils.md
 # Customization
