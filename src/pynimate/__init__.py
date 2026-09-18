@@ -9,12 +9,14 @@ Barhplot
     Horizontal Bar Chart Race module
 Lineplot
     Module for Lineplot animations
+Choropleth
+    Module for Choropleth animations
 
 Barhplot Example
 ---------------
 
 It is assumed `pynimate` is imported as `nim`.
->>> import pynimate as nim 
+>>> import pynimate as nim
 >>> import pandas as pd
 >>> df = pd.read_csv("sample.csv").set_index("time")
 >>> nim.Canvas()
@@ -26,11 +28,27 @@ It is assumed `pynimate` is imported as `nim`.
 >>> cnv.save('sample', fps=24)
 """
 
-__version__ = "1.3.0"
+__version__ = "1.4.2"
 
 from .bar import Barplot
 from .barhplot import Barhplot
 from .baseplot import Baseplot
 from .canvas import Canvas
 from .datafier import BarDatafier, BaseDatafier, Datafier, LineDatafier
+from .geodatafier import GeoDatafier
 from .lineplot import Lineplot
+from .choropleth import Choropleth
+
+__all__ = [
+    "Canvas",
+    "Barplot",
+    "Datafier",
+    "Baseplot",
+    "Barhplot",
+    "Lineplot",
+    "Choropleth",
+    "BaseDatafier",
+    "BarDatafier",
+    "LineDatafier",
+    "GeoDatafier",
+]

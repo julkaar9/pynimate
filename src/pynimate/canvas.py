@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Self
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -29,6 +29,7 @@ class Canvas:
             callback function for additional figure customization, by default None
 
         post_update args:
+        ----------------
         ```
             plt.Figure: Matplotlib figure
             list[list[plt.Axes]]]: Subplot Axes
@@ -44,7 +45,7 @@ class Canvas:
         self.plots = []
         self.length = 0
 
-    def add_plot(self, plot, index: tuple[int, int] = (0, 0)) -> __qualname__:
+    def add_plot(self, plot, index: tuple[int, int] = (0, 0)) -> Self:
         """Adds the plot to be animated with its ax index (for multiple subplots)
 
         Parameters
@@ -64,9 +65,9 @@ class Canvas:
         self.plots.append(plot)
         return self
 
-    # def _init(self) -> None:
-    #     for plot in self.plots:
-    #         plot.init()
+    def _init(self) -> None:
+        for plot in self.plots:
+            plot.init()
 
     def _update(self, i: int) -> None:
         self.post_update(self.fig, self.ax)
@@ -92,6 +93,7 @@ class Canvas:
         self.ani = animation.FuncAnimation(
             self.fig,
             self._update,
+            init_func=self._init,
             frames=frames_callback(self.length),
             interval=interval,
             blit=False,

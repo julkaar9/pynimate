@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from typing import Callable, Union
+from typing import Callable, Self, Union
 
 import numpy as np
 import pandas as pd
@@ -14,58 +14,69 @@ class Barhplot(Baseplot):
         self,
         datafier: BarDatafier,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         annot_bars: bool = True,
         rounded_edges: bool = False,
         fixed_xlim: bool = True,
         xticks: bool = True,
         yticks: bool = True,
         grid: bool = True,
+        set_frame_on: bool = True,
     ) -> None:
         """Bar Chart animation module that requires a valid time index.The data
         should be in this format where time is set to index
-            ```
-                Example:
-                >>> time  col1 col2 col3 ...
-                >>> 2012   1    0    2
-                >>> 2013   2    3    1
-            ```
+        Example:
+        ```
+            time  col1 col2 col3 ...
+            2012   1    0    2
+            2013   2    3    1
+        ```
         Parameters
         ----------
         datafier : BarDatafier
             The datafier instance
         palettes : list[str], optional
-            List of color palettes to generate bar colors, by default ["viridis"]
+            List of color palettes to generate bar colors, by default `["viridis"]`
         post_update : Callable[[Barhplot, i], None], optional
-            callback function for additional customization, by default lambda self, i: None
+            callback function for additional customization, by default `lambda self, i: None`
         annot_bars : bool, optional
-            Sets bar annotations, by default True
-        fixed_xlim : bool, optional
-            If False xlim will gradually change in every frame, by default True
-        xticks : bool, optional
-            Sets xticks, by default True
-        yticks : bool, optional
-            Sets yticks, by default True
-        grid : bool, optional
-             Sets xgrid, by default True
+            Sets bar annotations, by default `True`
         rounded_edges : bool, optional
-             Sets rounded bar edges, by default False
+             Sets rounded bar edges, by default `False`
+        fixed_xlim : bool, optional
+            If False xlim will gradually change in every frame, by default `True`
+        xticks : bool, optional
+            Sets xticks, by default `True`
+        yticks : bool, optional
+            Sets yticks, by default `True`
+        grid : bool, optional
+             Sets xgrid, by default `True`
+        set_frame_on : bool, optional
+            Set whether the Axes rectangle patch is drawn., by default `True`
 
         post_update args
-        ```
-        self: Baseplot instance
-        i: Frame index
+        ----------------
+        - ``self`` : Barhplot instance
+        - ``i`` : Current frame index
 
         example:
-
-        >>> def post_update(self, i):
-        >>>     # sets log scale for x-axis
-        >>>     self.ax.set_xscale("log")
+        ```python
+        def post_update(self, i):
+            # sets log scale for x-axis
+            self.ax.set_xscale("log")
 
         ```
         """
         super().__init__(
-            datafier, palettes, post_update, fixed_xlim, True, xticks, yticks, grid
+            datafier,
+            palettes,
+            post_update,
+            fixed_xlim,
+            True,
+            xticks,
+            yticks,
+            grid,
+            set_frame_on,
         )
         self.annot_bars = annot_bars
         self.rounded_edges = rounded_edges
@@ -81,13 +92,14 @@ class Barhplot(Baseplot):
         time_format: str,
         ip_freq: str,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         annot_bars: bool = True,
         rounded_edges: bool = False,
         fixed_xlim=True,
         xticks=True,
         yticks=True,
         grid=True,
+        set_frame_on: bool = True,
     ):
         return cls(
             BarDatafier(data, time_format, ip_freq),
@@ -99,12 +111,13 @@ class Barhplot(Baseplot):
             xticks,
             yticks,
             grid,
+            set_frame_on,
         )
 
     def set_xylim(
         self,
-        xlim: list[float] = [],
-        ylim: list[float] = [],
+        xlim: list[float] = None,
+        ylim: list[float] = None,
         xoffset: float = 5,
         yoffset: float = 0.6,
     ) -> None:
@@ -123,18 +136,17 @@ class Barhplot(Baseplot):
         """
         super().set_xylim(xlim, ylim)
 
-        if xlim == []:
+        if xlim is None:
             self.total_max = self.datafier.data.max().max()
             xlim = [None, self.total_max + xoffset]
         self.xlim = xlim
 
-        if ylim == []:
+        if ylim is None:
             ylim = [0.5, self.dfr.n_bars + yoffset]
         self.ylim = ylim
 
     def get_ith_bar_attrs(self, i: int) -> SimpleNamespace:
         """Prepares ith top columns and their respective attributes such as position, length, colors.
-        Not meant to be used outside animation update.
 
         Parameters
         ----------
@@ -180,7 +192,7 @@ class Barhplot(Baseplot):
                 boxstyle=f"round,pad={border['pad']}"
                 + (
                     f",rounding_size={border['radius']}"
-                    if border["radius"] != None
+                    if border["radius"] is not None
                     else ""
                 ),
                 ec=border["edge_color"],
@@ -218,13 +230,13 @@ class Barhplot(Baseplot):
         Parameters
         ----------
         text_callback : Callable[[float], Union[str, float]], optional
-            Callback function for customizing the text, by default lambda val:np.round(val, 2)
+            Callback function for customizing the text, by default `lambda val:np.round(val, 2)`
         xoffset : float, optional
-            X offset relative to bar length, by default 0.1
+            X offset relative to bar length, by default `0.1`
         yoffset : float, optional
-             Y offset relative to bar height, by default -0.1
+             Y offset relative to bar height, by default `-0.1`
         ha : str, optional
-            Horizontal alignment, by default "left"
+            Horizontal alignment, by default `"left"`
         """
         self.bar_annot_props = {
             "callback": text_callback,
@@ -248,13 +260,13 @@ class Barhplot(Baseplot):
         Parameters
         ----------
         edge_color : str, optional
-            Bar edge color, by default "k"
+            Bar edge color, by default `"k"`
         radius : float, optional
-            Bar border radius, by default 0.5
+            Bar border radius, by default `0.5`
         pad : float, optional
-            See above link, by default -0.0040
+            See above link, by default `-0.0040`
         mutation_aspect : float, optional
-            See above link, by default 0.2
+            See above link, by default `0.2`
         """
         self.bar_border_props = {
             "edge_color": edge_color,
