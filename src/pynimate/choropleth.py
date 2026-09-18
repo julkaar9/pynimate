@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Number
-from typing import TYPE_CHECKING, Callable, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, Optional, Self, Tuple
 
 import matplotlib.colors as mcolors
 import matplotlib.patheffects as pe
@@ -23,7 +23,7 @@ class Choropleth(Baseplot):
         self,
         datafier: GeoDatafier,
         *,
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         vrange: tuple[float, float] = None,
         log_norm: bool = False,
         cmap: str = "viridis",
@@ -181,7 +181,7 @@ class Choropleth(Baseplot):
         time_format: str,
         ip_freq: str,
         *,
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         vrange: tuple[float, float] = None,
         log_norm: bool = False,
         cmap: str = "viridis",

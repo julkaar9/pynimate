@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Callable, Self, Union
 
 import matplotlib.dates as mdates
 import pandas as pd
@@ -13,7 +13,7 @@ class Lineplot(Baseplot):
         self,
         datafier: LineDatafier,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         line_annots: bool = True,
         legend: bool = True,
         scatter_markers: bool = True,
@@ -40,7 +40,7 @@ class Lineplot(Baseplot):
             The datafier instance
         palettes : list[str], optional
             List of color palettes to generate line / marker colors, by default `["viridis"]`
-        post_update : Callable[[__qualname__, int], None], optional
+        post_update : Callable[[Self, int], None], optional
             callback function for additional customization, by default `lambda self, i: None`
         line_annots : bool, optional
             Sets line annotations leading the lines, by default `True`
@@ -102,7 +102,7 @@ class Lineplot(Baseplot):
         time_format: str,
         ip_freq: str,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         line_annots: bool = True,
         legend: bool = True,
         scatter_markers: bool = True,

@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from typing import Callable, Union
+from typing import Callable, Self, Union
 
 import numpy as np
 import pandas as pd
@@ -14,7 +14,7 @@ class Barhplot(Baseplot):
         self,
         datafier: BarDatafier,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         annot_bars: bool = True,
         rounded_edges: bool = False,
         fixed_xlim: bool = True,
@@ -92,7 +92,7 @@ class Barhplot(Baseplot):
         time_format: str,
         ip_freq: str,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         annot_bars: bool = True,
         rounded_edges: bool = False,
         fixed_xlim=True,

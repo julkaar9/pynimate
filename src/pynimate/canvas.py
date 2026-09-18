@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Self
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -45,7 +45,7 @@ class Canvas:
         self.plots = []
         self.length = 0
 
-    def add_plot(self, plot, index: tuple[int, int] = (0, 0)) -> __qualname__:
+    def add_plot(self, plot, index: tuple[int, int] = (0, 0)) -> Self:
         """Adds the plot to be animated with its ax index (for multiple subplots)
 
         Parameters

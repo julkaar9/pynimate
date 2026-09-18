@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Callable, Self, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +13,7 @@ class Baseplot:
         self,
         datafier: BaseDatafier,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         fixed_xlim: bool = True,
         fixed_ylim: bool = True,
         xticks: bool = True,
@@ -78,7 +78,7 @@ class Baseplot:
 
     def _setup_plot(
         self,
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         fixed_xlim: bool = True,
         fixed_ylim: bool = True,
         xticks: bool = True,
@@ -113,7 +113,7 @@ class Baseplot:
         time_format: str,
         ip_freq: str,
         palettes: list[str] = ["viridis"],
-        post_update: Callable[[__qualname__, int], None] = lambda self, i: None,
+        post_update: Callable[[Self, int], None] = lambda self, i: None,
         fixed_xlim=True,
         fixed_ylim=True,
         xticks=True,
